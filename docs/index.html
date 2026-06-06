@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cronograma de Trabajo - Proyecto Academia Leiva / Los Sauces</title>
+  <style>
+    :root {
+      --bg: #eef3f7;
+      --paper: #ffffff;
+      --ink: #16202b;
+      --muted: #657384;
+      --line: #d9e2ea;
+      --line-dark: #b8c6d2;
+      --navy: #10233a;
+      --week-a: #f8fbfd;
+      --week-b: #edf4f8;
+      --dylan: #1f77b4;
+      --freddy: #0f9f8f;
+      --daniel: #d9792b;
+      --brandon: #7c5cc4;
+      --team: #394b59;
+      --milestone: #d84f57;
+      --radius: 8px;
+      --task-col: minmax(190px, 1.25fr);
+      --duration-col: minmax(72px, 0.38fr);
+      --owner-col: minmax(104px, 0.55fr);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 0;
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(31, 119, 180, 0.12), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(15, 159, 143, 0.12), transparent 30%),
+        var(--bg);
+    }
+
+    .sheet {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0 auto;
+      overflow-x: hidden;
+      padding: 28px;
+      border: 0;
+      border-radius: 0;
+      background: var(--paper);
+      box-shadow: 0 24px 70px rgba(16, 35, 58, 0.14);
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: minmax(420px, 1fr) minmax(330px, 0.55fr);
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .hero {
+      padding: 24px;
+      border-radius: 14px;
+      color: #fff;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 38%),
+        var(--navy);
+      min-height: 120px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #a8d8e8;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.25rem;
+      letter-spacing: 0;
+    }
+
+    .summary {
+      max-width: 900px;
+      margin: 14px 0 0;
+      color: #d7e6ee;
+      font-size: 1rem;
+      line-height: 1.48;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .meta {
+      min-height: 30px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfdfe;
+    }
+
+    .meta.full {
+      grid-column: 1 / -1;
+    }
+
+    .meta-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .meta-value {
+      color: var(--ink);
+      font-size: 0.96rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfdfe;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .legend-title {
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--owner-color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--owner-color), white 78%);
+    }
+
+    .dylan {
+      --owner-color: var(--dylan);
+    }
+
+    .freddy {
+      --owner-color: var(--freddy);
+    }
+
+    .daniel {
+      --owner-color: var(--daniel);
+    }
+
+    .brandon {
+      --owner-color: var(--brandon);
+    }
+
+    .team {
+      --owner-color: var(--team);
+    }
+
+    .gantt {
+      display: grid;
+      gap: 8px;
+    }
+
+    .gantt-header,
+    .task-row {
+      display: grid;
+      grid-template-columns: var(--task-col) var(--duration-col) var(--owner-col) minmax(0, 4.2fr);
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .head,
+    .cell,
+    .timeline {
+      border-radius: var(--radius);
+    }
+
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 8px;
+      color: #fff;
+      background: var(--navy);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .weeks {
+      display: grid;
+      grid-template-columns: repeat(14, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .week {
+      color: #253647;
+      background: #e6edf2;
+      font-size: 0.72rem;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .week.key {
+      color: #8f2930;
+      background: #ffe5e7;
+    }
+
+    .cell {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.86rem;
+      font-weight: 750;
+      line-height: 1.28;
+    }
+
+    .duration,
+    .owner {
+      justify-content: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .task-note {
+      display: block;
+      margin-top: 4px;
+      margin-left: 3px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 650;
+    }
+
+    .owner-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 29px;
+      border: 1px solid color-mix(in srgb, var(--owner-color), white 28%);
+      border-radius: 999px;
+      color: color-mix(in srgb, var(--owner-color), black 28%);
+      background: color-mix(in srgb, var(--owner-color), white 84%);
+      font-weight: 900;
+    }
+
+    .timeline {
+      position: relative;
+      min-height: 50px;
+      display: grid;
+      grid-template-columns: repeat(14, minmax(0, 1fr));
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(to right, transparent calc((100% / 14 * 2) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 2) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 2), transparent calc(100% / 14 * 2)),
+        linear-gradient(to right, transparent calc((100% / 14 * 5) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 5) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 5), transparent calc(100% / 14 * 5)),
+        linear-gradient(to right, transparent calc((100% / 14 * 10) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 10) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 10), transparent calc(100% / 14 * 10)),
+        linear-gradient(to right, transparent calc(100% - 2px), rgba(216, 79, 87, 0.55) calc(100% - 2px), rgba(216, 79, 87, 0.55) 100%),
+        repeating-linear-gradient(to right, transparent 0, transparent calc((100% / 14) - 1px), var(--line-dark) calc((100% / 14) - 1px), var(--line-dark) calc(100% / 14)),
+        linear-gradient(to right, var(--week-a) 0, var(--week-a) calc(100% / 14), var(--week-b) calc(100% / 14), var(--week-b) calc(100% / 7));
+      background-size: auto, auto, auto, auto, auto, calc(100% / 7) 100%;
+    }
+
+    .bar {
+      grid-column: var(--start) / span var(--span);
+      align-self: center;
+      min-width: 0;
+      height: 30px;
+      margin: 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--owner-color), white 8%), var(--owner-color));
+      box-shadow: 0 7px 16px color-mix(in srgb, var(--owner-color), transparent 68%);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .bar.marker {
+      width: 34px;
+      height: 34px;
+      justify-self: center;
+      padding: 0;
+      border-radius: 50%;
+      background: var(--milestone);
+      box-shadow: 0 7px 16px rgba(216, 79, 87, 0.28);
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .note {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfdfe;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .note strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 980px) {
+      .header {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      :root {
+        --task-col: minmax(112px, 1.2fr);
+        --duration-col: minmax(46px, 0.35fr);
+        --owner-col: minmax(68px, 0.45fr);
+      }
+
+      body {
+        padding: 0;
+      }
+
+      .sheet {
+        padding: 12px;
+      }
+
+      .hero {
+        padding: 16px;
+      }
+
+      .meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      h1 {
+        font-size: 1.45rem;
+      }
+
+      .summary {
+        font-size: 0.86rem;
+      }
+
+      .legend {
+        gap: 8px;
+        font-size: 0.72rem;
+      }
+
+      .gantt {
+        gap: 5px;
+      }
+
+      .gantt-header,
+      .task-row {
+        gap: 4px;
+      }
+
+      .weeks {
+        gap: 2px;
+      }
+
+      .head {
+        min-height: 34px;
+        padding: 5px 3px;
+        font-size: 0.58rem;
+      }
+
+      .week {
+        font-size: 0.56rem;
+      }
+
+      .cell {
+        min-height: 42px;
+        padding: 6px 5px;
+        font-size: 0.62rem;
+      }
+
+      .duration,
+      .owner {
+        font-size: 0.58rem;
+      }
+
+      .task-note {
+        font-size: 0.55rem;
+      }
+
+      .owner-pill {
+        min-height: 24px;
+      }
+
+      .timeline {
+        min-height: 42px;
+      }
+
+      .bar {
+        height: 24px;
+        margin: 0 2px;
+        padding: 0 4px;
+        font-size: 0.54rem;
+      }
+
+      .bar.marker {
+        width: 24px;
+        height: 24px;
+      }
+
+      .notes {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .note {
+        padding: 10px;
+        font-size: 0.72rem;
+      }
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: #fff;
+      }
+
+      .sheet {
+        width: 100%;
+        padding: 10px;
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="sheet" aria-label="Cronograma de proyecto">
+    <header class="header">
+      <section class="hero">
+        <p class="eyebrow">SC-504 Lenguajes de Base de Datos</p>
+        <h1>Aplicacion para Academia Leiva / Los Sauces</h1>
+        <p class="summary">
+          Cronograma de trabajo en 14 semanas con 4 entregables principales: Entrega de Requerimientos, Primer avance,
+          Segundo Avance, y Entrega Final
+        </p>
+      </section>
+
+      <section class="meta-grid" aria-label="Datos del proyecto">
+        <div class="meta">
+          <span class="meta-label">Cliente</span>
+          <span class="meta-value">Academia Leiva</span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Fecha de Inicio</span>
+          <span class="meta-value">18 de Mayo</span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Fecha de Finalizacion</span>
+          <span class="meta-value">17 de Agosto</span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Primer Avance</span>
+          <span class="meta-value">Semana 5</span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Segundo Avance</span>
+          <span class="meta-value">Semana 10</span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Entrega Final</span>
+          <span class="meta-value">Semana 14</span>
+        </div>
+        <div class="meta full">
+          <span class="meta-label">Integrantes</span>
+          <span class="meta-value">Dylan Calderon, Freddy Rodriguez, Daniel Flores y Brandon Brenes</span>
+        </div>
+
+      </section>
+    </header>
+
+    <section class="legend" aria-label="Leyenda de responsables">
+      <span class="legend-title">Responsables:</span>
+      <span class="legend-item dylan"><span class="dot"></span>Dylan - Lider de Proyecto</span>
+      <span class="legend-item freddy"><span class="dot"></span>Freddy - Responsable de Producto</span>
+      <span class="legend-item daniel"><span class="dot"></span>Daniel - Desarrollador Frontend</span>
+      <span class="legend-item brandon"><span class="dot"></span>Brandon - Documentacion y Pruebas</span>
+      <span class="legend-item team"><span class="dot"></span>Equipo - Entregables</span>
+    </section>
+
+    <section class="gantt" aria-label="Diagrama de Gantt de 14 semanas">
+      <div class="gantt-header">
+        <div class="head">Tarea</div>
+        <div class="head">Duracion</div>
+        <div class="head">Responsable</div>
+        <div class="weeks">
+          <div class="head week">S1</div>
+          <div class="head week key">S2</div>
+          <div class="head week">S3</div>
+          <div class="head week">S4</div>
+          <div class="head week key">S5</div>
+          <div class="head week">S6</div>
+          <div class="head week">S7</div>
+          <div class="head week">S8</div>
+          <div class="head week">S9</div>
+          <div class="head week key">S10</div>
+          <div class="head week">S11</div>
+          <div class="head week">S12</div>
+          <div class="head week">S13</div>
+          <div class="head week key">S14</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Inicio, alcance y organizacion <span class="task-note">Roles, repositorio, alcance y plan de
+            trabajo.</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 1; --span: 1;">Inicio</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Justificacion del requerimiento <span class="task-note">Argumentar la necesidad del sistema
+            para Academia Leiva.</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
+        <div class="timeline">
+          <div class="bar freddy" style="--start: 1; --span: 1;">Justificacion</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Descripcion del requerimiento <span class="task-note">Definir el requerimiento, alcance
+            inicial y funcionalidades esperadas.</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 1; --span: 1;">Descripcion</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Diagrama de flujo <span class="task-note">Representar el flujo principal del proceso
+            propuesto.</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
+        <div class="timeline">
+          <div class="bar brandon" style="--start: 1; --span: 1;">Flujo</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Entrega de requerimiento inicial <span class="task-note">Justificacion, descripcion del
+            requerimiento y diagrama de flujo.</span></div>
+        <div class="cell duration">Semana 2</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar marker team" style="--start: 2; --span: 1;" title="Entregable inicial"></div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Requerimientos de Usuario <span class="task-note">Identificacion de las historias de usuario
+            en base a los
+            modulos</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 3; --span: 2;">Requisitos</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Cronograma de Trabajo<span class="task-note">Creacion del cronograma de trabajo</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 4; --span: 1;">Cronograma</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Objetivos<span class="task-note">Definicion del objetivo general y especificos en base al
+            documento incicial</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner daniel"><span class="owner-pill">Daniel</span></div>
+        <div class="timeline">
+          <div class="bar daniel" style="--start: 4; --span: 1;">Objetivos</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Alcance<span class="task-note">Definicion del alcance del proyecto</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
+        <div class="timeline">
+          <div class="bar brandon" style="--start: 4; --span: 1;">Alcance</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Contexto de la empresa<span class="task-note">Descripcion del entorno y condiciones de la
+            empresa</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
+        <div class="timeline">
+          <div class="bar brandon" style="--start: 4; --span: 1;">Contexto</div>
+        </div>
+      </div>
+
+
+      <div class="task-row">
+        <div class="cell">Diagrama Relacional y Normalizacion<span class="task-note">Creacion del diagrama relacional y
+            normalizacion de la base de datos.</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar team" style="--start: 3; --span: 2;">Diagrama</div>
+        </div>
+      </div>
+
+
+
+      <div class="task-row">
+        <div class="cell">Primer avance <span class="task-note">Documento, diagrama relacional y Requerimientos de
+            Usuario.</span></div>
+        <div class="cell duration">Semana 5</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar marker team" style="--start: 5; --span: 1;" title="Primer avance"></div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Scripts DDL, DML y constraints<span class="task-note">Creacion de tablas, restricciones,
+            secuencias y datos base.</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 6; --span: 2;">SQL base</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Consultas, joins, subqueries y vistas <span class="task-note">Consultas de seleccion, reportes
+            y objetos de consulta.</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
+        <div class="timeline">
+          <div class="bar freddy" style="--start: 6; --span: 2;">Consultas</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Conexion con la aplicacion <span class="task-note">Acceso a base de datos, seguridad y prueba
+            de conexion.</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner daniel"><span class="owner-pill">Daniel</span></div>
+        <div class="timeline">
+          <div class="bar daniel" style="--start: 7; --span: 2;">Conexion</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Procedimientos, Funciones y Vistas<span class="task-note">Procedimientos almacenados,
+            funciones, parametros y vistas.</span></div>
+        <div class="cell duration">3 semanas</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 7; --span: 3;">Unidades Programadas</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Cursores, triggers, paquetes y Cursores <span class="task-note">Unidades programadas para
+            completar el segundo avance</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
+        <div class="timeline">
+          <div class="bar freddy" style="--start: 8; --span: 2;">Objetos BD</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Revision completa del codigo<span class="task-note">Revision y correcion del segundo avance
+            antes de la entrega</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar team" style="--start: 9; --span: 2;">Revision</div>
+        </div>
+      </div>
+
+
+      <div class="task-row">
+        <div class="cell">Segundo avance <span class="task-note">Conexion, objetos de base de datos y diccionario de
+            datos.</span></div>
+        <div class="cell duration">Semana 10</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar marker team" style="--start: 10; --span: 1;" title="Segundo avance"></div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">CRUD de tablas principales <span class="task-note">Finalizacion de CRUD en tablas principales</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
+        <div class="timeline">
+          <div class="bar brandon" style="--start: 10; --span: 2;">CRUD Base</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">CRUD de tablas relacionadas <span class="task-note">Completar el CRUD con la integracion entre formularios y relaciones</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 11; --span: 2;">CRUD Relacional</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Diseño de pantallas principales <span class="task-note">Crear las vistas principales de
+            navegación, menú y formularios.</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
+        <div class="timeline">
+          <div class="bar freddy" style="--start: 11; --span: 2;">Pantallas</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Trabajo frontend<span class="task-note">Conectar botones, formularios,
+            validaciones y mensajes con las operaciones CRUD.</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner daniel"><span class="owner-pill">Daniel</span></div>
+        <div class="timeline">
+          <div class="bar daniel" style="--start: 12; --span: 2;">Integración</div>
+        </div>
+      </div>
+
+      <div class="task-row">
+        <div class="cell">Entrega final <span class="task-note">Defensa del proyecto final programado.</span></div>
+        <div class="cell duration">Semana 14</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar marker team" style="--start: 14; --span: 1;" title="Entrega final"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="Notas de entregables">
+      <article class="note">
+        <strong>Semana 2: Entregable inicial</strong>
+        Justificacion del requerimiento, descripcion del requerimiento y diagrama de flujo.
+      </article>
+      <article class="note">
+        <strong>Semana 5: Primer avance</strong>
+        Documento de analisis, diagrama relacional normalizado y requerimientos de usuario.
+      </article>
+      <article class="note">
+        <strong>Semana 10: Segundo avance</strong>
+        50% del Codigo programado, conexion a base de datos, diccionario de datos y objetos SQL/PLSQL: procedimientos, vistas, funciones y
+        cursores.
+      </article>
+      <article class="note">
+        <strong>Semana 14: Defensa final</strong>
+        Aplicacion con CRUD por tabla, interfaz funcional, objetos PL/SQL aplicados, pruebas y presentacion final.
+      </article>
+    </section>
+  </main>
+</body>
+
+</html>
