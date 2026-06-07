@@ -285,10 +285,10 @@
 
     .timeline {
       position: relative;
-      min-height: 50px;
+      min-height: 48px;
       display: grid;
       grid-template-columns: repeat(14, minmax(0, 1fr));
-      overflow: hidden;
+      overflow: visible;
       border: 1px solid var(--line);
       background:
         linear-gradient(to right, transparent calc((100% / 14 * 2) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 2) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 2), transparent calc(100% / 14 * 2)),
@@ -304,20 +304,21 @@
       grid-column: var(--start) / span var(--span);
       align-self: center;
       min-width: 0;
-      height: 30px;
-      margin: 0 5px;
+      min-height: 30px;
+      margin: 2px 5px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 10px;
-      border-radius: 999px;
+      padding: 4px 10px;
+      border-radius: var(--radius);
       color: #fff;
       background: linear-gradient(135deg, color-mix(in srgb, var(--owner-color), white 8%), var(--owner-color));
       box-shadow: 0 7px 16px color-mix(in srgb, var(--owner-color), transparent 68%);
       font-size: 0.72rem;
       font-weight: 900;
       text-align: center;
-      white-space: nowrap;
+      white-space: normal;
+      word-break: break-word;
     }
 
     .bar.marker {
@@ -442,15 +443,16 @@
       }
 
       .bar {
-        height: 24px;
-        margin: 0 2px;
-        padding: 0 4px;
+        height: auto;
+        margin: 2px 1px;
+        padding: 2px 4px;
         font-size: 0.54rem;
       }
 
       .bar.marker {
         width: 24px;
         height: 24px;
+        border-width: 50%;
       }
 
       .notes {
@@ -486,11 +488,11 @@
   <main class="sheet" aria-label="Cronograma de proyecto">
     <header class="header">
       <section class="hero">
-        <p class="eyebrow">SC-504 Lenguajes de Base de Datos</p>
-        <h1>Sistema de Gestion Deportiva para Academia Leiva / Los Sauces</h1>
+        <p class="eyebrow">PROYECTO NÚMERO: SC504-LenguajesDeBaseDatos-G6</p>
+        <h1>Sistema de Gestion Deportiva para Academia Leiva / Deportivo Los Sauces</h1>
         <p class="summary">
-          Cronograma de trabajo en 14 semanas con 4 entregables principales: Entrega de Requerimientos, Primer avance,
-          Segundo Avance, y Entrega Final
+          Cronograma de trabajo en 14 semanas con 4 entregables: Entrega de requerimientos, primer avance,
+          segundo Avance, y entrega final
         </p>
       </section>
 
@@ -504,7 +506,7 @@
           <span class="meta-value">18 de Mayo</span>
         </div>
         <div class="meta">
-          <span class="meta-label">Fecha de Finalizacion</span>
+          <span class="meta-label">Fecha de Finalización</span>
           <span class="meta-value">17 de Agosto</span>
         </div>
         <div class="meta">
@@ -521,7 +523,7 @@
         </div>
         <div class="meta full">
           <span class="meta-label">Integrantes</span>
-          <span class="meta-value">Dylan Calderon, Freddy Rodriguez, Daniel Flores y Brandon Brenes</span>
+          <span class="meta-value">Dylan Calderón, Freddy Rodríguez, Daniel Flores y Brandon Brenes</span>
         </div>
 
       </section>
@@ -529,17 +531,17 @@
 
     <section class="legend" aria-label="Leyenda de responsables">
       <span class="legend-title">Responsables:</span>
-      <span class="legend-item dylan"><span class="dot"></span>Dylan - Lider de Proyecto</span>
+      <span class="legend-item dylan"><span class="dot"></span>Dylan - Líder de Proyecto</span>
       <span class="legend-item freddy"><span class="dot"></span>Freddy - Responsable de Producto</span>
       <span class="legend-item daniel"><span class="dot"></span>Daniel - Desarrollador Frontend</span>
-      <span class="legend-item brandon"><span class="dot"></span>Brandon - Documentacion y Pruebas</span>
+      <span class="legend-item brandon"><span class="dot"></span>Brandon - Documentación y Pruebas</span>
       <span class="legend-item team"><span class="dot"></span>Equipo - Entregables</span>
     </section>
 
     <section class="gantt" aria-label="Diagrama de Gantt de 14 semanas">
       <div class="gantt-header">
         <div class="head">Tarea</div>
-        <div class="head">Duracion</div>
+        <div class="head">Duración</div>
         <div class="head">Responsable</div>
         <div class="weeks">
           <div class="head week">S1</div>
@@ -560,8 +562,7 @@
       </div>
 
       <div class="task-row">
-        <div class="cell">Inicio, alcance y organizacion <span class="task-note">Roles, repositorio, alcance y plan de
-            trabajo.</span></div>
+        <div class="cell">Inicio y organización <span class="task-note">Definición del tema de proyecto</span></div>
         <div class="cell duration">1 semana</div>
         <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
         <div class="timeline">
@@ -570,22 +571,22 @@
       </div>
 
       <div class="task-row">
-        <div class="cell">Justificacion del requerimiento <span class="task-note">Argumentar la necesidad del sistema
+        <div class="cell">Justificación del requerimiento <span class="task-note">Argumentar la necesidad del sistema
             para Academia Leiva.</span></div>
         <div class="cell duration">1 semana</div>
         <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
         <div class="timeline">
-          <div class="bar freddy" style="--start: 1; --span: 1;">Justificacion</div>
+          <div class="bar freddy" style="--start: 1; --span: 1;">Justificación</div>
         </div>
       </div>
 
       <div class="task-row">
-        <div class="cell">Descripcion del requerimiento <span class="task-note">Definir el requerimiento, alcance
+        <div class="cell">Descripción del requerimiento <span class="task-note">Definir el requerimiento, alcance
             inicial y funcionalidades esperadas.</span></div>
         <div class="cell duration">1 semana</div>
         <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
         <div class="timeline">
-          <div class="bar dylan" style="--start: 1; --span: 1;">Descripcion</div>
+          <div class="bar dylan" style="--start: 1; --span: 1;">Descripción</div>
         </div>
       </div>
 
