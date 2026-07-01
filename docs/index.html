@@ -293,7 +293,7 @@
       background:
         linear-gradient(to right, transparent calc((100% / 14 * 2) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 2) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 2), transparent calc(100% / 14 * 2)),
         linear-gradient(to right, transparent calc((100% / 14 * 5) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 5) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 5), transparent calc(100% / 14 * 5)),
-        linear-gradient(to right, transparent calc((100% / 14 * 10) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 10) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 10), transparent calc(100% / 14 * 10)),
+        linear-gradient(to right, transparent calc((100% / 14 * 9) - 1px), rgba(216, 79, 87, 0.55) calc((100% / 14 * 9) - 1px), rgba(216, 79, 87, 0.55) calc(100% / 14 * 9), transparent calc(100% / 14 * 9)),
         linear-gradient(to right, transparent calc(100% - 2px), rgba(216, 79, 87, 0.55) calc(100% - 2px), rgba(216, 79, 87, 0.55) 100%),
         repeating-linear-gradient(to right, transparent 0, transparent calc((100% / 14) - 1px), var(--line-dark) calc((100% / 14) - 1px), var(--line-dark) calc(100% / 14)),
         linear-gradient(to right, var(--week-a) 0, var(--week-a) calc(100% / 14), var(--week-b) calc(100% / 14), var(--week-b) calc(100% / 7));
@@ -523,7 +523,7 @@
         </div>
         <div class="meta full">
           <span class="meta-label">Integrantes</span>
-          <span class="meta-value">Dylan Calderón, Freddy Rodríguez, Daniel Flores y Brandon Brenes</span>
+          <span class="meta-value">Dylan Calderón, Freddy Rodríguez, Daniel Flores* y Brandon Brenes</span>
         </div>
 
       </section>
@@ -533,7 +533,7 @@
       <span class="legend-title">Responsables:</span>
       <span class="legend-item dylan"><span class="dot"></span>Dylan - Líder de Proyecto</span>
       <span class="legend-item freddy"><span class="dot"></span>Freddy - Responsable de Producto</span>
-      <span class="legend-item daniel"><span class="dot"></span>Daniel - Desarrollador Frontend</span>
+      <span class="legend-item daniel"><span class="dot"></span>Daniel* - Desarrollador Frontend</span>
       <span class="legend-item brandon"><span class="dot"></span>Brandon - Documentación y Pruebas</span>
       <span class="legend-item team"><span class="dot"></span>Equipo - Entregables</span>
     </section>
@@ -552,8 +552,8 @@
           <div class="head week">S6</div>
           <div class="head week">S7</div>
           <div class="head week">S8</div>
-          <div class="head week">S9</div>
-          <div class="head week key">S10</div>
+          <div class="head week key ">S9</div>
+          <div class="head week">S10</div>
           <div class="head week">S11</div>
           <div class="head week">S12</div>
           <div class="head week">S13</div>
@@ -634,7 +634,7 @@
         <div class="cell">Objetivos<span class="task-note">Definicion del objetivo general y especificos en base al
             documento incicial</span></div>
         <div class="cell duration">1 semana</div>
-        <div class="cell owner daniel"><span class="owner-pill">Daniel</span></div>
+        <div class="cell owner daniel"><span class="owner-pill">Daniel*</span></div>
         <div class="timeline">
           <div class="bar daniel" style="--start: 4; --span: 1;">Objetivos</div>
         </div>
@@ -671,7 +671,6 @@
       </div>
 
 
-
       <div class="task-row">
         <div class="cell">Primer avance <span class="task-note">Documento, diagrama relacional y Requerimientos de
             Usuario.</span></div>
@@ -682,39 +681,49 @@
         </div>
       </div>
 
+
       <div class="task-row">
-        <div class="cell">Scripts DDL, DML y constraints<span class="task-note">Creacion de tablas, restricciones,
-            secuencias y datos base.</span></div>
-        <div class="cell duration">2 semanas</div>
-        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="cell">Correciones<span class="task-note">Revision de correciones sobre unidades programadas</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
         <div class="timeline">
-          <div class="bar dylan" style="--start: 6; --span: 2;">SQL base</div>
+          <div class="bar team" style="--start: 5; --span: 2;">Correciones</div>
         </div>
       </div>
 
       <div class="task-row">
-        <div class="cell">Consultas, joins, subqueries y vistas <span class="task-note">Consultas de seleccion, reportes
-            y objetos de consulta.</span></div>
-        <div class="cell duration">2 semanas</div>
-        <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
+        <div class="cell">Recalificacion<span class="task-note">Entrega de Correciones Del Primer Avance</span></div>
+        <div class="cell duration">Semana 6</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
         <div class="timeline">
-          <div class="bar freddy" style="--start: 6; --span: 2;">Consultas</div>
+          <div class="bar marker team" style="--start: 6; --span: 1;" title="Correciones"></div>
         </div>
       </div>
+
 
       <div class="task-row">
         <div class="cell">Conexion con la aplicacion <span class="task-note">Acceso a base de datos, seguridad y prueba
             de conexion.</span></div>
         <div class="cell duration">2 semanas</div>
-        <div class="cell owner daniel"><span class="owner-pill">Daniel</span></div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
         <div class="timeline">
-          <div class="bar daniel" style="--start: 7; --span: 2;">Conexion</div>
+          <div class="bar dylan" style="--start: 6; --span: 2;">Conexion</div>
+        </div>
+      </div>
+
+
+      <div class="task-row">
+         <div class="cell">Scripts DDL, DML y constraints<span class="task-note">Creacion de tablas, restricciones,
+            secuencias y datos base.</span></div>
+        <div class="cell duration">2 semanas</div>
+        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
+        <div class="timeline">
+          <div class="bar dylan" style="--start: 7; --span: 2;">SQL Base</div>
         </div>
       </div>
 
       <div class="task-row">
-        <div class="cell">Procedimientos, Funciones y Vistas<span class="task-note">Procedimientos almacenados,
-            funciones, parametros y vistas.</span></div>
+        <div class="cell">Procedimientos Almacenados<span class="task-note">Creacion del CRUD en paquete para 10 tablas</span></div>
         <div class="cell duration">3 semanas</div>
         <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
         <div class="timeline">
@@ -722,31 +731,64 @@
         </div>
       </div>
 
-      <div class="task-row">
-        <div class="cell">Cursores, triggers, paquetes y Cursores <span class="task-note">Unidades programadas para
-            completar el segundo avance</span></div>
+    <div class="task-row">
+        <div class="cell">Procedimientos Almacenados<span class="task-note">Creacion del CRUD en paquete para 10 tablas</span></div>
+        <div class="cell duration">3 semanas</div>
+        <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
+        <div class="timeline">
+          <div class="bar freddy" style="--start: 7; --span: 3;">Unidades Programadas</div>
+        </div>
+      </div>
+
+    <div class="task-row">
+        <div class="cell">Procedimientos Almacenados<span class="task-note">Creacion del CRUD en paquete para 10 tablas</span></div>
+        <div class="cell duration">3 semanas</div>
+        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
+        <div class="timeline">
+          <div class="bar brandon" style="--start: 7; --span: 3;">Unidades Programadas</div>
+        </div>
+      </div>
+
+    <div class="task-row">
+        <div class="cell">Funciones y Cursores<span class="task-note">Creacion de Funciones con Cursores Explicitos en la base de datos</span></div>
         <div class="cell duration">2 semanas</div>
         <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
         <div class="timeline">
-          <div class="bar freddy" style="--start: 8; --span: 2;">Objetos BD</div>
+          <div class="bar freddy" style="--start: 8; --span: 2;">Funciones y Cursores</div>
         </div>
       </div>
 
-      <div class="task-row">
-        <div class="cell">Revision completa del codigo<span class="task-note">Revision y correcion del segundo avance
-            antes de la entrega</span></div>
+    <div class="task-row">
+        <div class="cell">Vistas<span class="task-note">Creacion de Vistas en base a las tablas de las base de datos</span></div>
         <div class="cell duration">2 semanas</div>
+        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
+        <div class="timeline">
+          <div class="bar brandon" style="--start: 8; --span: 2;">Vistas</div>
+        </div>
+      </div>
+
+
+      <div class="task-row">
+        <div class="cell">Segundo avance <span class="task-note">Conexion, CRUDs y objetos en la base de datos</span></div>
+        <div class="cell duration">Semana 9</div>
         <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
         <div class="timeline">
-          <div class="bar team" style="--start: 9; --span: 2;">Revision</div>
+          <div class="bar marker team" style="--start: 9; --span: 1;" title="Segundo avance"></div>
         </div>
       </div>
 
+      <div class="task-row">
+        <div class="cell">Correciones<span class="task-note">Revision de correciones sobre unidades programadas</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar team" style="--start: 9; --span: 2;">Correciones</div>
+        </div>
+      </div>
 
       <div class="task-row">
-        <div class="cell">Segundo avance <span class="task-note">Conexion, objetos de base de datos y diccionario de
-            datos.</span></div>
-        <div class="cell duration">Semana 10</div>
+        <div class="cell">Recalificacion<span class="task-note">Entrega Correciones</span></div>
+        <div class="cell duration">Semana 11</div>
         <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
         <div class="timeline">
           <div class="bar marker team" style="--start: 10; --span: 1;" title="Segundo avance"></div>
@@ -754,42 +796,33 @@
       </div>
 
       <div class="task-row">
-        <div class="cell">CRUD de tablas principales <span class="task-note">Finalizacion de CRUD en tablas principales</span></div>
+        <div class="cell">Triggers y/o secuencias <span class="task-note">Analisis de implementacion de triggers y procedimientos faltantes</span></div>
         <div class="cell duration">2 semanas</div>
-        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
         <div class="timeline">
-          <div class="bar brandon" style="--start: 10; --span: 2;">CRUD Base</div>
-        </div>
-      </div>
-
-      <div class="task-row">
-        <div class="cell">CRUD de tablas relacionadas <span class="task-note">Completar el CRUD con la integracion entre formularios y relaciones</span></div>
-        <div class="cell duration">2 semanas</div>
-        <div class="cell owner dylan"><span class="owner-pill">Dylan</span></div>
-        <div class="timeline">
-          <div class="bar dylan" style="--start: 11; --span: 2;">CRUD Relacional</div>
-        </div>
-      </div>
-
-      <div class="task-row">
-        <div class="cell">Diseño de pantallas principales <span class="task-note">Crear las vistas principales de
-            navegación, menú y formularios.</span></div>
-        <div class="cell duration">2 semanas</div>
-        <div class="cell owner freddy"><span class="owner-pill">Freddy</span></div>
-        <div class="timeline">
-          <div class="bar freddy" style="--start: 11; --span: 2;">Pantallas</div>
+          <div class="bar team" style="--start: 10; --span: 2;">Integración</div>
         </div>
       </div>
 
       <div class="task-row">
         <div class="cell">Trabajo frontend<span class="task-note">Conectar botones, formularios,
             validaciones y mensajes con las operaciones CRUD.</span></div>
-        <div class="cell duration">2 semanas</div>
-        <div class="cell owner daniel"><span class="owner-pill">Daniel</span></div>
+        <div class="cell duration">3 semanas</div>
+        <div class="cell owner brandon"><span class="owner-pill">Brandon</span></div>
         <div class="timeline">
-          <div class="bar daniel" style="--start: 12; --span: 2;">Integración</div>
+          <div class="bar daniel" style="--start: 11; --span: 3;">Integración</div>
         </div>
       </div>
+
+      <div class="task-row">
+        <div class="cell">Revision final<span class="task-note">Revision final de codigo y preparacion para la presentacion</span></div>
+        <div class="cell duration">1 semana</div>
+        <div class="cell owner team"><span class="owner-pill">Equipo</span></div>
+        <div class="timeline">
+          <div class="bar team" style="--start: 13; --span: 2;">Revision</div>
+        </div>
+      </div>
+
 
       <div class="task-row">
         <div class="cell">Entrega final <span class="task-note">Defensa del proyecto final programado.</span></div>
@@ -811,7 +844,7 @@
         Documento de analisis, diagrama relacional normalizado y requerimientos de usuario.
       </article>
       <article class="note">
-        <strong>Semana 10: Segundo avance</strong>
+        <strong>Semana 9: Segundo avance</strong>
         50% del Codigo programado, conexion a base de datos, diccionario de datos y objetos SQL/PLSQL: procedimientos, vistas, funciones y
         cursores.
       </article>
@@ -819,6 +852,11 @@
         <strong>Semana 14: Defensa final</strong>
         Aplicacion con CRUD por tabla, interfaz funcional, objetos PL/SQL aplicados, pruebas y presentacion final.
       </article>
+      <article class="note">
+        <strong>Daniel*</strong>
+        Abandono de Curso. Apoyo en primer avance
+      </article>
+
     </section>
   </main>
 </body>
