@@ -1,5 +1,6 @@
 const AUTH_URL = '../routes/auth.php';
 const MODULE_URL = '../routes/admin.php';
+const PAYMENT_URL = '../routes/pagos.php';
 
 let tables = {};
 
@@ -51,11 +52,19 @@ const totalRecords = document.getElementById('totalRecords');
 const activeRecordsLabel = document.getElementById('activeRecordsLabel');
 const activeRecords = document.getElementById('activeRecords');
 const visibleRecords = document.getElementById('visibleRecords');
+const paymentSearchForm = document.getElementById('paymentSearchForm');
+const payRegistrationForm = document.getElementById('payRegistrationForm');
+const paymentMessage = document.getElementById('paymentMessage');
+const paymentResults = document.getElementById('paymentResults');
+const paymentDetail = document.getElementById('paymentDetail');
+let selectedPaymentPlayer = null;
 
 function init() {
     bindTabs();
     loadStates();
     loginForm.addEventListener('submit', login);
+    paymentSearchForm.addEventListener('submit', searchPaymentPlayers);
+    payRegistrationForm.addEventListener('submit', registerPayment);
     logoutBtn.addEventListener('click', logout);
     tableForm.addEventListener('submit', saveTable);
     recordsTable.addEventListener('click', handleTableClick);
@@ -67,6 +76,82 @@ function init() {
     clearFiltersBtn.addEventListener('click', clearRecordFilters);
     checkSession();
 }
+
+async function searchPaymentPlayers(event) {
+    event.preventDefault();
+    const cedula = document.getElementById('paymentCedula').value.trim();
+    const nombre = document.getElementById('paymentName').value.trim();
+    if (!cedula && !nombre) return showMessage(paymentMessage, 'Digite una cédula o el nombre completo.', true);
+    try {
+        const params = new URLSearchParams({ action: 'buscar', cedula, nombre });
+        const data = await requestJson(`${PAYMENT_URL}?${params}`);
+        paymentDetail.classList.add('hidden');
+        selectedPaymentPlayer = null;
+        paymentResults.classList.remove('hidden');
+        const records = data.records || [];
+        paymentResults.innerHTML = records.length ? records.map((player) => `<button type="button" class="payment-player-option" data-player-id="${escapeHtml(player.ID_JUGADOR)}"><strong>${escapeHtml(player.NOMBRE_COMPLETO)}</strong><span>Cédula: ${escapeHtml(player.CEDULA)} · ${escapeHtml(player.NOMBRE_CATEGORIA)}</span></button>`).join('') : '<p class="hint">No se encontraron jugadores con esos datos.</p>';
+        paymentResults.querySelectorAll('[data-player-id]').forEach((button) => button.addEventListener('click', () => loadPaymentPlayer(button.dataset.playerId)));
+        clearMessage(paymentMessage);
+    } catch (error) { showMessage(paymentMessage, error.message, true); }
+}
+
+async function loadPaymentPlayer(playerId) {
+    try {
+        const data = await requestJson(`${PAYMENT_URL}?action=detalle&jugador_id=${encodeURIComponent(playerId)}`);
+        selectedPaymentPlayer = data.player;
+        paymentResults.classList.add('hidden');
+        paymentDetail.classList.remove('hidden');
+        document.getElementById('paymentPlayer').innerHTML = `<h2>${escapeHtml(data.player.NOMBRE_COMPLETO)}</h2><p>Cédula: ${escapeHtml(data.player.CEDULA)} · Categoría: ${escapeHtml(data.player.NOMBRE_CATEGORIA)}</p>`;
+        const payments = data.payments || [];
+        document.getElementById('paymentHistory').innerHTML = payments.length ? payments.map((item) => `<tr><td>${monthName(item.MES)} ${escapeHtml(item.ANIO)}</td><td>${formatCurrency(item.MONTO)}</td><td>${formatDate(item.FECHA_PAGO)}</td><td><span class="badge-status">${escapeHtml(item.NOMBRE_ESTADO)}</span></td></tr>`).join('') : '<tr><td colspan="4">Este jugador no tiene pagos registrados.</td></tr>';
+        preparePaymentForm();
+        clearMessage(paymentMessage);
+    } catch (error) { showMessage(paymentMessage, error.message, true); }
+}
+
+function preparePaymentForm() {
+    const month = document.getElementById('paymentMonth');
+    const now = new Date();
+    month.innerHTML = Array.from({ length: 12 }, (_, index) => `<option value="${index + 1}">${monthName(index + 1)}</option>`).join('');
+    month.value = String(now.getMonth() + 1);
+    document.getElementById('paymentYear').value = now.getFullYear();
+    document.getElementById('paymentAmount').value = '';
+    document.getElementById('paymentMethod').value = '';
+    document.getElementById('paymentReference').value = '';
+    document.getElementById('paymentNotes').value = '';
+}
+
+async function registerPayment(event) {
+    event.preventDefault();
+    if (!selectedPaymentPlayer) return;
+    const payload = {
+        jugador_id: selectedPaymentPlayer.ID_JUGADOR,
+        mes: document.getElementById('paymentMonth').value,
+        anio: document.getElementById('paymentYear').value,
+        monto: document.getElementById('paymentAmount').value,
+        metodo_pago: document.getElementById('paymentMethod').value,
+        referencia: document.getElementById('paymentReference').value.trim(),
+        observaciones: document.getElementById('paymentNotes').value.trim(),
+    };
+    try {
+        const data = await requestJson(`${PAYMENT_URL}?action=pagar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showMessage(paymentMessage, data.message);
+        printInvoice(data.invoice);
+        await loadPaymentPlayer(selectedPaymentPlayer.ID_JUGADOR);
+    } catch (error) { showMessage(paymentMessage, error.message, true); }
+}
+
+function printInvoice(invoice) {
+    const popup = window.open('', '_blank', 'width=760,height=800');
+    if (!popup) return showMessage(paymentMessage, 'Pago registrado. Permita las ventanas emergentes para imprimir la factura.', false);
+    popup.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Factura ${escapeHtml(invoice.id)}</title><style>body{font-family:Arial,sans-serif;color:#172033;padding:42px}h1{color:#16845b}dl{display:grid;grid-template-columns:180px 1fr;gap:12px}dt{font-weight:bold;color:#667085}dd{margin:0}.total{font-size:24px;font-weight:bold;margin-top:30px}@media print{button{display:none}}</style></head><body><h1>Academia Leiva</h1><h2>Factura de inscripción #${escapeHtml(invoice.id)}</h2><dl><dt>Jugador</dt><dd>${escapeHtml(invoice.player.NOMBRE_COMPLETO)}</dd><dt>Cédula</dt><dd>${escapeHtml(invoice.player.CEDULA)}</dd><dt>Categoría</dt><dd>${escapeHtml(invoice.player.NOMBRE_CATEGORIA)}</dd><dt>Período</dt><dd>${monthName(invoice.mes)} ${escapeHtml(invoice.anio)}</dd><dt>Fecha de pago</dt><dd>${formatDate(invoice.fecha_pago)}</dd><dt>Método</dt><dd>${escapeHtml(invoice.metodo_pago)}</dd><dt>Referencia</dt><dd>${escapeHtml(invoice.referencia || 'No indicada')}</dd></dl><p class="total">Total pagado: ${formatCurrency(invoice.monto)}</p><button onclick="window.print()">Imprimir factura</button></body></html>`);
+    popup.document.close();
+    popup.focus();
+}
+
+function monthName(month) { return ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][Number(month) - 1] || ''; }
+function formatCurrency(amount) { return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', maximumFractionDigits: 2 }).format(Number(amount || 0)); }
+function formatDate(value) { if (!value) return '—'; const [year, month, day] = String(value).slice(0, 10).split('-'); return year && month && day ? `${day}/${month}/${year}` : String(value); }
 
 function bindTabs() {
     document.querySelectorAll('[data-bs-toggle="pill"]').forEach((tab) => {
@@ -806,6 +891,12 @@ function showMessage(box, message, isError = false) {
     box.textContent = message;
     box.classList.remove('hidden', 'error');
     if (isError) box.classList.add('error');
+}
+
+function clearMessage(box) {
+    box.textContent = '';
+    box.classList.add('hidden');
+    box.classList.remove('error');
 }
 
 function formatMoney(value) {
