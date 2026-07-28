@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Leiva | Vista deportiva</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/consulta.css">
+</head>
+<body>
+    <main class="consultation-shell">
+        <header class="consultation-topbar">
+            <a href="consulta.html" class="brand consultation-brand" aria-label="Vista deportiva">
+                <img src="logo.jpg" alt="Academia Leiva" class="dashboard-logo">
+                <div>
+                    <h1>Vista deportiva</h1>
+                    <p>Informacion para jugadores y partidos</p>
+                </div>
+            </a>
+            <nav class="consultation-nav" aria-label="Modulos deportivos">
+                <button type="button" class="consultation-nav-link active" data-consultation-tab="playersView">Jugadores</button>
+                <button type="button" class="consultation-nav-link" data-consultation-tab="matchesView">Partidos</button>
+                <a class="consultation-nav-link" href="dashboard.html">Dashboard</a>
+                <a class="consultation-nav-link" href="comparador.html">Comparador</a>
+                <a class="consultation-nav-link" href="disponibilidad.html">Disponibilidad</a>
+            </nav>
+            <a href="index.html" class="btn btn-outline-secondary">Administracion</a>
+        </header>
+
+        <section id="playersView" class="consultation-view active">
+            <div class="module-heading">
+                <span class="eyebrow">Modulo de jugadores</span>
+                <h2>Encuentra un jugador</h2>
+                <p>Usa uno o varios filtros para cargar las tarjetas disponibles.</p>
+            </div>
+
+            <form id="playerFilters" class="query-panel">
+                <div class="query-heading">
+                    <div>
+                        <h3>Busqueda de jugadores</h3>
+                        <p>La lista permanece vacia hasta que ejecutes una busqueda.</p>
+                    </div>
+                    <button type="button" id="clearPlayerFilters" class="btn btn-outline-secondary">Limpiar</button>
+                </div>
+                <div class="query-grid player-query-grid">
+                    <div><label for="playerName">Nombre completo</label><input id="playerName" name="name" type="search" class="form-control" placeholder="Nombre o apellido"></div>
+                    <div><label for="playerCedula">Cedula</label><input id="playerCedula" name="cedula" type="search" class="form-control" placeholder="Numero de cedula"></div>
+                    <div><label for="playerCategory">Categoria</label><select id="playerCategory" name="category" class="form-select"><option value="">Todas</option></select></div>
+                    <div><label for="playerPosition">Posicion</label><select id="playerPosition" name="position" class="form-select"><option value="">Todas</option></select></div>
+                    <div class="query-action"><button type="submit" class="btn btn-success">Buscar jugadores</button></div>
+                </div>
+            </form>
+
+            <div id="playerMessage" class="consultation-message hidden"></div>
+            <section class="results-panel panel">
+                <div class="panel-header"><h3>Jugadores</h3><span id="playerResultCount" class="result-count">0 registros</span></div>
+                <div id="playersGrid" class="player-card-grid">
+                    <div class="empty-result player-empty">Configura un filtro o presiona buscar para consultar jugadores.</div>
+                </div>
+            </section>
+        </section>
+
+        <section id="matchesView" class="consultation-view">
+            <div class="module-heading">
+                <span class="eyebrow">Modulo de partidos</span>
+                <h2>Consulta los partidos</h2>
+                <p>Filtra resultados por temporada, rival, fecha y marcador.</p>
+            </div>
+
+            <form id="matchFilters" class="query-panel">
+                <div class="query-heading">
+                    <div>
+                        <h3>Buscar partidos</h3>
+                        <p>Combina los filtros que necesites.</p>
+                    </div>
+                    <button type="button" id="clearMatchFilters" class="btn btn-outline-secondary">Limpiar</button>
+                </div>
+                <div class="query-grid">
+                    <div><label for="matchYear">Anio</label><input id="matchYear" name="year" type="number" min="1900" max="2200" class="form-control" placeholder="Ej. 2026"></div>
+                    <div><label for="matchSeason">Temporada</label><select id="matchSeason" name="season" class="form-select"><option value="">Todas</option></select></div>
+                    <div><label for="matchRival">Rival</label><input id="matchRival" name="rival" type="search" class="form-control" placeholder="Nombre del rival"></div>
+                    <div><label for="matchDate">Fecha</label><input id="matchDate" name="date" type="date" class="form-control"></div>
+                    <div><label for="matchResult">Resultado</label><select id="matchResult" name="result" class="form-select"><option value="">Todos</option><option value="ganado">Ganados</option><option value="perdido">Perdidos</option><option value="empate">Empates</option></select></div>
+                    <div class="query-action"><button type="submit" class="btn btn-success">Buscar partidos</button></div>
+                </div>
+            </form>
+
+            <div id="matchMessage" class="consultation-message hidden"></div>
+            <section class="stats-grid consultation-stats">
+                <article class="stat-card panel"><span>Partidos</span><strong id="matchTotal">0</strong></article>
+                <article class="stat-card panel"><span>Ganados</span><strong id="matchWins">0</strong></article>
+                <article class="stat-card panel"><span>Perdidos</span><strong id="matchLosses">0</strong></article>
+                <article class="stat-card panel"><span>Empates</span><strong id="matchDraws">0</strong></article>
+            </section>
+
+            <section class="results-panel panel">
+                <div class="panel-header"><h3>Resultados</h3><span id="matchResultCount" class="result-count">0 registros</span></div>
+                <div class="table-wrapper"><table><thead><tr><th>Fecha</th><th>Rival</th><th>Resultado</th><th>Marcador</th><th>Temporada</th><th>Asistencia</th><th>Detalle</th></tr></thead><tbody id="matchesTable"></tbody></table></div>
+            </section>
+        </section>
+    </main>
+
+    <script src="js/consulta.js"></script>
+</body>
+</html>

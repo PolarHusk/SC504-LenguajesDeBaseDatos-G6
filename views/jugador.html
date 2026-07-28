@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Leiva | Perfil del jugador</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/consulta.css">
+</head>
+<body>
+    <main class="consultation-shell player-profile-shell">
+        <header class="consultation-topbar">
+            <a href="consulta.html" class="brand consultation-brand" aria-label="Volver a jugadores">
+                <img src="logo.jpg" alt="Academia Leiva" class="dashboard-logo">
+                <div>
+                    <h1>Perfil del jugador</h1>
+                    <p>Informacion personal y rendimiento deportivo</p>
+                </div>
+            </a>
+            <nav class="consultation-nav" aria-label="Navegacion del perfil">
+                <a class="consultation-nav-link active" href="consulta.html">Jugadores</a>
+                <a class="consultation-nav-link" href="consulta.html#matchesView">Partidos</a>
+                <a class="consultation-nav-link" href="dashboard.html">Dashboard</a>
+                <a class="consultation-nav-link" href="comparador.html">Comparador</a>
+                <a class="consultation-nav-link" href="disponibilidad.html">Disponibilidad</a>
+            </nav>
+            <a href="consulta.html" class="btn btn-outline-secondary">Volver</a>
+        </header>
+
+        <div id="profileMessage" class="consultation-message hidden"></div>
+        <section id="profileContent" class="profile-layout hidden">
+            <article class="profile-personal panel">
+                <span class="eyebrow">Datos personales</span>
+                <h2 id="profileName">Jugador</h2>
+                <div id="personalData" class="profile-data-list"></div>
+            </article>
+            <article class="profile-statistics panel">
+                <div class="profile-section-heading">
+                    <div>
+                        <span class="eyebrow">Rendimiento</span>
+                        <h2>Estadisticas completas</h2>
+                    </div>
+                </div>
+                <div id="statisticsGrid" class="profile-stat-grid"></div>
+            </article>
+        </section>
+    </main>
+
+    <script src="js/jugador.js"></script>
+</body>
+</html>
