@@ -66,7 +66,7 @@
                 </div>
 
                 <p class="menu-label">Administracion de Tablas en la Base de Datos</p>
-                <nav id="tableMenu" class="menu"></nav>
+                <nav id="tableMenu" class="menu" aria-label="Módulos de administración"></nav>
                 <a href="consulta.html" class="btn btn-outline-light w-100 mt-4">Vista deportiva</a>
                 <button id="logoutBtn" class="btn btn-outline-light w-100 mt-4">Cerrar sesion</button>
             </aside>
@@ -95,8 +95,13 @@
                     </article>
                 </section>
 
-                <section id="contentGrid" class="content-grid">
-                    <form id="tableForm" class="panel form-panel">
+                <div class="record-tabs" role="tablist" aria-label="Gestión de registros">
+                    <button type="button" id="recordsTab" class="record-tab active" role="tab" aria-selected="true" aria-controls="recordsPanel" tabindex="0">Registros</button>
+                    <button type="button" id="newRecordTab" class="record-tab" role="tab" aria-selected="false" aria-controls="tableForm" tabindex="-1">Nuevo registro</button>
+                </div>
+
+                <section id="contentGrid" class="content-grid tabbed-layout">
+                    <form id="tableForm" class="panel form-panel hidden" role="tabpanel" aria-labelledby="newRecordTab" tabindex="-1">
                         <div class="panel-header">
                             <h3 id="formTitle">Nuevo registro</h3>
                             <button type="button" id="clearBtn" class="link-button">Limpiar</button>
@@ -126,16 +131,14 @@
                         </div>
                     </form>
 
-                    <section class="panel table-panel">
+                    <section id="recordsPanel" class="panel table-panel" role="tabpanel" aria-labelledby="recordsTab" tabindex="-1">
                         <div class="panel-header table-tools">
-                            <h3>Registros</h3>
+                            <div>
+                                <h3>Registros</h3>
+                                <p class="panel-subtitle">Consulta, filtra o edita la información.</p>
+                            </div>
                             <div class="record-filters">
                                 <input type="search" id="recordSearch" class="form-control" placeholder="Buscar en los registros" aria-label="Buscar en los registros">
-                                <select id="statusFilter" class="form-select" aria-label="Filtrar por estado">
-                                    <option value="all">Todos los estados</option>
-                                    <option value="1">Activos</option>
-                                    <option value="2">Inactivos</option>
-                                </select>
                                 <button type="button" id="clearFiltersBtn" class="btn btn-outline-secondary">Limpiar filtros</button>
                             </div>
                         </div>

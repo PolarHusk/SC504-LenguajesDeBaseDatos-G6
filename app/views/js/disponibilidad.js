@@ -1,4 +1,4 @@
-const CONSULTATION_URL = '../routes/consultas.php';
+const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 document.addEventListener('DOMContentLoaded', initAvailability);
 

@@ -8,7 +8,7 @@ function start_app_session(): void
         return;
     }
 
-    $sessionPath = dirname(__DIR__) . '/tmp/sessions';
+    $sessionPath = dirname(__DIR__, 2) . '/tmp/sessions';
     if (!is_dir($sessionPath)) {
         mkdir($sessionPath, 0777, true);
     }

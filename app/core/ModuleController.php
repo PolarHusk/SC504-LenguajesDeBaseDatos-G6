@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/core/Http.php';
+require_once __DIR__ . '/Http.php';
 
 abstract class ModuleController
 {

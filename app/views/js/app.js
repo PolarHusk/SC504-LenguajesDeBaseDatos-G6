@@ -1,5 +1,5 @@
-const AUTH_URL = '../routes/auth.php';
-const MODULE_URL = '../routes/admin.php';
+const AUTH_URL = '../../public/routes/auth.php';
+const MODULE_URL = '../../public/routes/admin.php';
 
 let tables = {};
 
@@ -25,6 +25,9 @@ const tableMenu = document.getElementById('tableMenu');
 const tableTitle = document.getElementById('tableTitle');
 const contentGrid = document.getElementById('contentGrid');
 const tableForm = document.getElementById('tableForm');
+const recordsPanel = document.getElementById('recordsPanel');
+const recordsTab = document.getElementById('recordsTab');
+const newRecordTab = document.getElementById('newRecordTab');
 const formTitle = document.getElementById('formTitle');
 const modeInput = document.getElementById('mode');
 const recordIdLabel = document.querySelector('label[for="recordId"]');
@@ -45,7 +48,6 @@ const deleteBtn = document.getElementById('deleteBtn');
 const reloadBtn = document.getElementById('reloadBtn');
 const messageBox = document.getElementById('messageBox');
 const recordSearch = document.getElementById('recordSearch');
-const statusFilter = document.getElementById('statusFilter');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const totalRecords = document.getElementById('totalRecords');
 const activeRecordsLabel = document.getElementById('activeRecordsLabel');
@@ -61,9 +63,14 @@ function init() {
     recordsTable.addEventListener('click', handleTableClick);
     deleteBtn.addEventListener('click', deleteRecord);
     clearBtn.addEventListener('click', clearForm);
+    recordsTab.addEventListener('click', () => activateRecordTab('records', false));
+    newRecordTab.addEventListener('click', () => {
+        clearForm();
+        activateRecordTab('form', true);
+    });
+    bindRecordTabKeyboard();
     reloadBtn.addEventListener('click', () => loadRecords(true));
     recordSearch.addEventListener('input', applyRecordFilters);
-    statusFilter.addEventListener('change', applyRecordFilters);
     clearFiltersBtn.addEventListener('click', clearRecordFilters);
     checkSession();
 }
@@ -164,6 +171,7 @@ async function showAdmin(user) {
         await loadStates();
         buildMenu();
         applyTableLabels();
+        activateRecordTab('records', false);
         loadRecords();
     } catch (error) {
         showMessage(messageBox, error.message, true);
@@ -177,26 +185,85 @@ function showAccess() {
 
 function buildMenu() {
     tableMenu.innerHTML = '';
-    Object.values(moduleGroups).forEach((module) => {
+    Object.entries(moduleGroups).forEach(([moduleKey, module]) => {
         const availableTables = module.tables.filter((key) => tables[key]);
         if (!availableTables.length) return;
 
-        appendModuleLabel(tableMenu, module.label);
+        const moduleMenu = document.createElement('details');
+        moduleMenu.className = `module-menu module-${moduleKey}`;
+        moduleMenu.open = availableTables.includes(currentTable);
+
+        const moduleId = `module-menu-${moduleKey}`;
+        const toggle = document.createElement('summary');
+        toggle.className = 'module-toggle';
+        toggle.setAttribute('aria-controls', moduleId);
+
+        const toggleText = document.createElement('span');
+        toggleText.className = 'module-toggle-text';
+        toggleText.textContent = module.label;
+
+        toggle.append(toggleText);
+
+        const submenu = document.createElement('div');
+        submenu.id = moduleId;
+        submenu.className = 'submenu';
+        submenu.setAttribute('role', 'group');
+        submenu.setAttribute('aria-label', `Tablas de ${module.label}`);
+
+        moduleMenu.append(toggle, submenu);
+        tableMenu.appendChild(moduleMenu);
+
         availableTables.forEach((key) => {
             const button = document.createElement('button');
+            button.type = 'button';
             button.textContent = tables[key].title;
-            button.className = key === currentTable ? 'active' : '';
+            button.className = `submenu-button${key === currentTable ? ' active' : ''}`;
+            if (key === currentTable) button.setAttribute('aria-current', 'page');
             button.addEventListener('click', () => changeTable(key));
-            tableMenu.appendChild(button);
+            submenu.appendChild(button);
         });
     });
 }
 
-function appendModuleLabel(container, label) {
-    const heading = document.createElement('p');
-    heading.className = 'menu-label module-label';
-    heading.textContent = label;
-    container.appendChild(heading);
+function bindRecordTabKeyboard() {
+    const tabs = [recordsTab, newRecordTab];
+
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('keydown', (event) => {
+            let nextIndex = index;
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % tabs.length;
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + tabs.length) % tabs.length;
+            if (event.key === 'Home') nextIndex = 0;
+            if (event.key === 'End') nextIndex = tabs.length - 1;
+            if (nextIndex === index) return;
+
+            event.preventDefault();
+            tabs[nextIndex].focus();
+            activateRecordTab(nextIndex === 0 ? 'records' : 'form', false);
+        });
+    });
+}
+
+function activateRecordTab(tabName, moveFocus = false) {
+    const showForm = tabName === 'form';
+
+    recordsTab.classList.toggle('active', !showForm);
+    newRecordTab.classList.toggle('active', showForm);
+    recordsTab.setAttribute('aria-selected', String(!showForm));
+    newRecordTab.setAttribute('aria-selected', String(showForm));
+    recordsTab.tabIndex = showForm ? -1 : 0;
+    newRecordTab.tabIndex = showForm ? 0 : -1;
+    recordsPanel.classList.toggle('hidden', showForm);
+    tableForm.classList.toggle('hidden', !showForm);
+
+    if (moveFocus) {
+        window.requestAnimationFrame(() => {
+            const focusTarget = showForm
+                ? (recordNameField.classList.contains('hidden') ? recordIdInput : recordNameInput)
+                : recordSearch;
+            focusTarget?.focus();
+        });
+    }
 }
 
 function getModuleForTable(tableKey) {
@@ -215,7 +282,7 @@ function changeTable(key) {
     clearForm();
     buildMenu();
     applyTableLabels();
-    tableForm.classList.remove('hidden');
+    activateRecordTab('records', false);
     loadRecords();
 }
 
@@ -224,9 +291,9 @@ function applyTableLabels() {
     const firstPk = table.pkFields[0];
     const firstField = table.fields[0];
     const isExpanded = isComplexTable(table);
-    const hasStatusColumn = table.statusColumn ?? table.hasEstado;
 
     tableTitle.textContent = table.title;
+    recordsPanel.setAttribute('aria-label', `Registros de ${table.title}`);
     contentGrid.classList.toggle('expanded-form', isExpanded);
     tableForm.classList.toggle('expanded', isExpanded);
     recordIdField.classList.toggle('hidden', table.autoId);
@@ -259,8 +326,7 @@ function applyTableLabels() {
         loadLocationOptions();
     }
     recordStatusField.classList.toggle('hidden', !table.hasEstado);
-    statusFilter.classList.toggle('hidden', !hasStatusColumn);
-    if (!hasStatusColumn) statusFilter.value = 'all';
+    deleteBtn.classList.toggle('hidden', currentTable === 'estados');
     setEditOnlyFields(false);
 }
 
@@ -459,18 +525,12 @@ function applyRecordFilters() {
     if (!table) return;
 
     const searchTerm = recordSearch.value.trim().toLowerCase();
-    const statusColumn = table.statusColumn ?? table.hasEstado;
-    const selectedStatus = statusColumn ? statusFilter.value : 'all';
-
     filteredRecords = records.filter((record) => {
         const matchesSearch = searchTerm === '' || Object.values(record)
             .filter((value) => value !== null && value !== undefined)
             .some((value) => String(value).toLowerCase().includes(searchTerm));
 
-        if (!matchesSearch) return false;
-        if (selectedStatus === 'all') return true;
-
-        return String(record.ID_ESTADO ?? '') === selectedStatus;
+        return matchesSearch;
     });
 
     updateDashboard();
@@ -479,7 +539,6 @@ function applyRecordFilters() {
 
 function clearRecordFilters() {
     recordSearch.value = '';
-    statusFilter.value = 'all';
     applyRecordFilters();
 }
 
@@ -519,6 +578,7 @@ function renderRecords() {
     const table = tables[currentTable];
     const columns = getTableColumns(table, false, false);
     const hasEstado = table.statusColumn ?? table.hasEstado;
+    const canDeactivate = currentTable !== 'estados';
     recordsHead.innerHTML = `
         <tr>
             ${columns.map((field) => `<th>${escapeHtml(field.label)}</th>`).join('')}
@@ -541,7 +601,7 @@ function renderRecords() {
         row.innerHTML = `
             ${columns.map((field) => `<td>${escapeHtml(formatRecordValue(getRecordValue(record, field, true), field))}</td>`).join('')}
             ${hasEstado ? `<td><span class="badge-status ${isInactive ? 'inactive' : ''}">${escapeHtml(estadoNombre)}</span></td>` : ''}
-            <td><div class="row-actions"><button class="small-btn" data-action="edit" data-index="${recordIndex}">Editar</button><button class="small-btn" data-action="delete" data-index="${recordIndex}">Desactivar</button></div></td>
+            <td><div class="row-actions"><button class="small-btn" data-action="edit" data-index="${recordIndex}">Editar</button>${canDeactivate ? `<button class="small-btn" data-action="delete" data-index="${recordIndex}">Desactivar</button>` : ''}</div></td>
         `;
         recordsTable.appendChild(row);
     });
@@ -580,6 +640,7 @@ async function saveTable(event) {
         clearForm();
         tableCache.delete(currentTable);
         tableCache.delete(`options:${currentTable}`);
+        activateRecordTab('records', false);
         loadRecords(true);
     } catch (error) {
         showMessage(messageBox, error.message, true);
@@ -619,6 +680,7 @@ function fillForm(record) {
     setEditOnlyFields(true);
     recordStatusSelect.value = String(record.ID_ESTADO || getDefaultStateId());
     deleteBtn.disabled = false;
+    activateRecordTab('form', true);
 }
 
 function clearForm() {

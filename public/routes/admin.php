@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/core/Session.php';
-require_once dirname(__DIR__) . '/core/Http.php';
-require_once dirname(__DIR__) . '/controllers/ConfiguracionController.php';
-require_once dirname(__DIR__) . '/controllers/InventarioController.php';
-require_once dirname(__DIR__) . '/controllers/PersonasController.php';
-require_once dirname(__DIR__) . '/controllers/UbicacionController.php';
-require_once dirname(__DIR__) . '/controllers/SaludController.php';
-require_once dirname(__DIR__) . '/controllers/CompetenciaController.php';
-require_once dirname(__DIR__) . '/controllers/FinanzasController.php';
+require_once dirname(__DIR__, 2) . '/app/core/Session.php';
+require_once dirname(__DIR__, 2) . '/app/core/Http.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/ConfiguracionController.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/InventarioController.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/PersonasController.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/UbicacionController.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/SaludController.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/CompetenciaController.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/FinanzasController.php';
 
 start_app_session();
 configure_json_api('GET, POST, PUT, DELETE, OPTIONS');

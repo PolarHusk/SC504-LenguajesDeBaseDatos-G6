@@ -1,4 +1,4 @@
-const CONSULTATION_URL = '../routes/consultas.php';
+const CONSULTATION_URL = '../../public/routes/consultas.php';
 const selectedPlayers = new Set();
 
 document.addEventListener('DOMContentLoaded', initComparator);

@@ -1,4 +1,4 @@
-const CONSULTATION_URL = '../routes/consultas.php';
+const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 const tabs = document.querySelectorAll('[data-consultation-tab]');
 const views = document.querySelectorAll('.consultation-view');
