@@ -164,6 +164,17 @@ textarea {
     border-top: 1px solid var(--line);
 }
 
+.payment-results { margin-top: 18px; display: grid; gap: 8px; }
+.payment-player-option { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 12px; text-align: left; background: #fff; cursor: pointer; }
+.payment-player-option:hover { border-color: var(--green); background: #f2fbf7; }
+.payment-player-option strong, .payment-player-option span { display: block; }
+.payment-player-option span, .optional { color: var(--muted); font-size: 13px; font-weight: 500; margin-top: 3px; }
+.payment-detail { margin-top: 20px; }
+.payment-history { margin-top: 18px; }
+.payment-history h4, .payment-box h4 { margin: 0 0 8px; font-size: 17px; }
+.payment-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+.payment-form-grid label { margin-top: 0; }
+
 .player-summary h2 {
     margin: 0;
     font-size: 22px;

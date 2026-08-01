@@ -13,7 +13,7 @@
             <div class="access-copy">
                 <span class="eyebrow">Academia Leiva</span>
                 <h1>Gestion administrativa</h1>
-                <p>Modulo de pagos en construccion.</p>
+                <p>Gestión administrativa y pagos de inscripciones.</p>
             </div>
 
             <section class="auth-card">
@@ -46,9 +46,37 @@
                     </div>
 
                     <div class="tab-pane fade" id="paymentPane" role="tabpanel" aria-labelledby="payment-tab">
-                        <div class="panel p-4">
-                            <h3 class="mb-2">Modulo en construccion</h3>
-                            <p class="mb-0">La funcionalidad de pagos se estara habilitando proximamente.</p>
+                        <form id="paymentSearchForm" class="stack-form">
+                            <div>
+                                <label for="paymentCedula" class="form-label">Cédula del jugador</label>
+                                <input type="search" id="paymentCedula" class="form-control" placeholder="Ej.: 1-2345-6789">
+                            </div>
+                            <div>
+                                <label for="paymentName" class="form-label">Nombre completo</label>
+                                <input type="search" id="paymentName" class="form-control" placeholder="Nombre y apellidos">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Buscar jugador</button>
+                        </form>
+                        <div id="paymentMessage" class="message hidden mt-3"></div>
+                        <div id="paymentResults" class="payment-results hidden"></div>
+                        <section id="paymentDetail" class="payment-detail hidden">
+                            <div id="paymentPlayer" class="player-summary"></div>
+                            <div class="payment-history">
+                                <h4>Registro de pagos</h4>
+                                <div class="table-wrapper"><table><thead><tr><th>Período</th><th>Monto</th><th>Fecha</th><th>Estado</th></tr></thead><tbody id="paymentHistory"></tbody></table></div>
+                            </div>
+                            <form id="payRegistrationForm" class="payment-box stack-form">
+                                <h4>Registrar pago de inscripción</h4>
+                                <div class="payment-form-grid">
+                                    <div><label for="paymentMonth">Mes</label><select id="paymentMonth" class="form-select" required></select></div>
+                                    <div><label for="paymentYear">Año</label><input id="paymentYear" type="number" min="2000" class="form-control" required></div>
+                                    <div><label for="paymentAmount">Monto (₡)</label><input id="paymentAmount" type="number" min="0.01" step="0.01" class="form-control" placeholder="0.00" required></div>
+                                    <div><label for="paymentMethod">Método de pago</label><select id="paymentMethod" class="form-select" required><option value="">Seleccione una opción</option><option value="Transferencia">Transferencia</option><option value="SINPE Móvil">SINPE Móvil</option></select></div>
+                                    <div><label for="paymentReference">Número de referencia <span class="optional">(opcional)</span></label><input id="paymentReference" maxlength="80" class="form-control" placeholder="Comprobante o referencia"></div>
+                                    <div><label for="paymentNotes">Observaciones <span class="optional">(opcional)</span></label><input id="paymentNotes" maxlength="160" class="form-control" placeholder="Detalle adicional"></div>
+                                </div>
+                                <button type="submit" class="btn btn-success">Registrar pago y generar factura</button>
+                            </form>
                         </div>
                     </div>
                 </div>
