@@ -28,23 +28,25 @@ final class PersonasController extends ModuleController
                     ['key' => 'apellido_materno', 'column' => 'APELLIDO_MATERNO', 'label' => 'Apellido materno', 'type' => 'text'],
                     ['key' => 'edad', 'column' => 'EDAD', 'label' => 'Edad', 'type' => 'number'],
                     ['key' => 'nombre_de_usuario', 'column' => 'NOMBRE_DE_USUARIO', 'label' => 'Usuario', 'type' => 'text'],
-                    ['key' => 'contrasenia', 'column' => 'CONTRASENIA', 'label' => 'Contrasenia', 'type' => 'text'],
-                    ['key' => 'id_cargo', 'column' => 'ID_CARGO', 'label' => 'ID Cargo', 'type' => 'number'],
+                    ['key' => 'contrasenia', 'column' => 'CONTRASENIA', 'label' => 'Contrasenia', 'type' => 'text', 'table' => false],
+                    ['key' => 'id_cargo', 'column' => 'ID_CARGO', 'label' => 'ID Cargo', 'type' => 'number', 'table' => false],
                 ],
+                'displayFields' => [['key' => 'cargo', 'column' => 'CARGO', 'label' => 'Cargo', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => true,
             ],
             'jugadores' => [
                 'title' => 'Jugadores',
                 'pkFields' => [['key' => 'id', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number']],
                 'fields' => [
-                    ['key' => 'cedula', 'column' => 'CEDULA', 'label' => 'Cedula', 'type' => 'text'],
-                    ['key' => 'id_categoria', 'column' => 'ID_CATEGORIA', 'label' => 'ID Categoria', 'type' => 'number'],
                     ['key' => 'nombre', 'column' => 'NOMBRE', 'label' => 'Nombre', 'type' => 'text'],
-                    ['key' => 'apellido_materno', 'column' => 'APELLIDO_MATERNO', 'label' => 'Apellido materno', 'type' => 'text'],
                     ['key' => 'apellido_paterno', 'column' => 'APELLIDO_PATERNO', 'label' => 'Apellido paterno', 'type' => 'text'],
+                    ['key' => 'apellido_materno', 'column' => 'APELLIDO_MATERNO', 'label' => 'Apellido materno', 'type' => 'text'],
+                    ['key' => 'cedula', 'column' => 'CEDULA', 'label' => 'Cedula', 'type' => 'text'],
+                    ['key' => 'id_categoria', 'column' => 'ID_CATEGORIA', 'label' => 'ID Categoria', 'type' => 'number', 'table' => false],
                     ['key' => 'dorsal', 'column' => 'DORSAL', 'label' => 'Dorsal', 'type' => 'number'],
                     ['key' => 'fecha_nacimiento', 'column' => 'FECHA_NACIMIENTO', 'label' => 'Fecha nacimiento', 'type' => 'date'],
                 ],
+                'displayFields' => [['key' => 'categoria', 'column' => 'CATEGORIA', 'label' => 'Categoria', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => true,
             ],
             'telefonos' => [
@@ -52,18 +54,19 @@ final class PersonasController extends ModuleController
                 'pkFields' => [['key' => 'id', 'column' => 'ID_TELEFONO', 'label' => 'ID Telefono', 'type' => 'number']],
                 'fields' => [
                     ['key' => 'numero_telefono', 'column' => 'NUMERO_TELEFONO', 'label' => 'Numero telefono', 'type' => 'text'],
-                    ['key' => 'id_empleado', 'column' => 'ID_EMPLEADO', 'label' => 'ID Empleado', 'type' => 'number'],
+                    ['key' => 'id_empleado', 'column' => 'ID_EMPLEADO', 'label' => 'ID Empleado', 'type' => 'number', 'table' => false],
                 ],
+                'displayFields' => [['key' => 'empleado', 'column' => 'EMPLEADO', 'label' => 'Empleado', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false,
             ],
             'jugador_posiciones' => [
-                'title' => 'Jugador Posiciones',
-                'pkFields' => [
-                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number'],
-                    ['key' => 'id_posicion_actual', 'column' => 'ID_POSICION', 'label' => 'ID Posicion', 'type' => 'number'],
+                'title' => 'Posiciones de jugadores',
+                'pkFields' => [['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number', 'table' => false]],
+                'fields' => [
+                    ['key' => 'jugador', 'column' => 'JUGADOR', 'label' => 'Jugador', 'type' => 'text'],
+                    ['key' => 'posiciones', 'column' => 'POSICIONES', 'label' => 'Posiciones', 'type' => 'text'],
                 ],
-                'fields' => [['key' => 'id_posicion_nueva', 'column' => 'ID_POSICION', 'label' => 'ID Posicion nueva', 'type' => 'number', 'editOnly' => true, 'table' => false]],
-                'hasEstado' => true, 'statusColumn' => false, 'autoId' => false, 'hasAddress' => false,
+                'hasEstado' => false, 'statusColumn' => false, 'autoId' => true, 'hasAddress' => false, 'readOnly' => true,
             ],
         ];
     }

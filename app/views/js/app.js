@@ -376,6 +376,7 @@ function applyTableLabels() {
     const firstPk = table.pkFields[0];
     const firstField = table.fields[0];
     const isExpanded = isComplexTable(table);
+    const readOnly = table.readOnly === true;
 
     tableTitle.textContent = table.title;
     recordsPanel.setAttribute('aria-label', `Registros de ${table.title}`);
@@ -411,7 +412,10 @@ function applyTableLabels() {
         loadLocationOptions();
     }
     recordStatusField.classList.toggle('hidden', !table.hasEstado);
-    deleteBtn.classList.toggle('hidden', currentTable === 'estados');
+    deleteBtn.classList.toggle('hidden', currentTable === 'estados' || readOnly);
+    newRecordTab.classList.toggle('hidden', readOnly);
+    newRecordTab.setAttribute('aria-hidden', String(readOnly));
+    if (readOnly) activateRecordTab('records', false);
     setEditOnlyFields(false);
 }
 
@@ -663,18 +667,18 @@ function renderRecords() {
     const table = tables[currentTable];
     const columns = getTableColumns(table, false, false);
     const hasEstado = table.statusColumn ?? table.hasEstado;
-    const canDeactivate = currentTable !== 'estados';
+    const canManage = table.readOnly !== true;
     recordsHead.innerHTML = `
         <tr>
             ${columns.map((field) => `<th>${escapeHtml(field.label)}</th>`).join('')}
             ${hasEstado ? '<th>Estado</th>' : ''}
-            <th>Acciones</th>
+            ${canManage ? '<th>Acciones</th>' : ''}
         </tr>
     `;
     recordsTable.innerHTML = '';
 
     if (filteredRecords.length === 0) {
-        recordsTable.innerHTML = `<tr><td colspan="${columns.length + (hasEstado ? 2 : 1)}">No hay registros para mostrar.</td></tr>`;
+        recordsTable.innerHTML = `<tr><td colspan="${columns.length + (hasEstado ? 1 : 0) + (canManage ? 1 : 0)}">No hay registros para mostrar.</td></tr>`;
     }
 
     filteredRecords.forEach((record) => {
@@ -686,7 +690,7 @@ function renderRecords() {
         row.innerHTML = `
             ${columns.map((field) => `<td>${escapeHtml(formatRecordValue(getRecordValue(record, field, true), field))}</td>`).join('')}
             ${hasEstado ? `<td><span class="badge-status ${isInactive ? 'inactive' : ''}">${escapeHtml(estadoNombre)}</span></td>` : ''}
-            <td><div class="row-actions"><button class="small-btn" data-action="edit" data-index="${recordIndex}">Editar</button>${canDeactivate ? `<button class="small-btn" data-action="delete" data-index="${recordIndex}">Desactivar</button>` : ''}</div></td>
+            ${canManage ? '<td><div class="row-actions"><button class="small-btn" data-action="edit" data-index="' + recordIndex + '">Editar</button><button class="small-btn" data-action="delete" data-index="' + recordIndex + '">Desactivar</button></div></td>' : ''}
         `;
         recordsTable.appendChild(row);
     });
