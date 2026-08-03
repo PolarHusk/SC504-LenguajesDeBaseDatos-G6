@@ -1112,10 +1112,13 @@ function setDynamicInputValues(fields, record, readOnly) {
         const input = getDynamicInput(field.key);
         if (!input) return;
         if (field.type === 'checkboxes') {
+            const selectedValues = new Set((Array.isArray(getRecordValue(record, field)) ? getRecordValue(record, field) : [])
+                .map((value) => String(value)));
             input.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-                checkbox.checked = false;
+                checkbox.checked = selectedValues.has(checkbox.value);
                 checkbox.disabled = readOnly;
             });
+            configureChecklistValidation(input);
             return;
         }
         input.value = formatRecordValue(getRecordValue(record, field), field);

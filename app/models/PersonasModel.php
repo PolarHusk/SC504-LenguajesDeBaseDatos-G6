@@ -61,7 +61,25 @@ final class PersonasModel extends OracleModel
 
     public function listJugadores(): array
     {
-        return $this->listView('FIDE_JUGADORES_V', 'ID_JUGADOR', true, 'FIDE_JUGADORES_CON_DIRECCION_V');
+        $jugadores = $this->listView('FIDE_JUGADORES_V', 'ID_JUGADOR', true, 'FIDE_JUGADORES_CON_DIRECCION_V');
+        $relaciones = $this->query(
+            'SELECT ID_JUGADOR, ID_POSICION FROM FIDE_JUGADOR_POSICIONES_TB WHERE ID_ESTADO = :estado',
+            [':estado' => ESTADO_ACTIVO],
+            'No fue posible cargar las posiciones de los jugadores.'
+        );
+
+        $posicionesPorJugador = [];
+        foreach ($relaciones as $relacion) {
+            $jugadorId = (int) $relacion['ID_JUGADOR'];
+            $posicionesPorJugador[$jugadorId][] = (int) $relacion['ID_POSICION'];
+        }
+
+        foreach ($jugadores as &$jugador) {
+            $jugador['ID_POSICIONES'] = $posicionesPorJugador[(int) $jugador['ID_JUGADOR']] ?? [];
+        }
+        unset($jugador);
+
+        return $jugadores;
     }
 
     public function saveJugador(array $data, bool $isUpdate): void
@@ -70,7 +88,7 @@ final class PersonasModel extends OracleModel
             array_map('intval', is_array($data['id_posiciones'] ?? null) ? $data['id_posiciones'] : []),
             static fn(int $id): bool => $id > 0
         )));
-        if (!$isUpdate && $positionIds === []) {
+        if ($positionIds === []) {
             throw new InvalidArgumentException('Debe seleccionar al menos una posicion.');
         }
 
@@ -108,8 +126,10 @@ final class PersonasModel extends OracleModel
         ];
 
         if ($isUpdate) {
-            array_unshift($values, (int) $this->required($data, 'id', 'ID Jugador'));
+            $jugadorId = (int) $this->required($data, 'id', 'ID Jugador');
+            array_unshift($values, $jugadorId);
             $this->call('FIDE_JUGADORES_TB_MODIFICAR_SP', $values, 'No fue posible actualizar el jugador.', [7]);
+            $this->syncJugadorPosiciones($jugadorId, $positionIds, $this->state($data));
             return;
         }
 
@@ -132,6 +152,24 @@ final class PersonasModel extends OracleModel
                 $positionId,
                 $this->state($data),
             ], 'No fue posible asignar una posicion al jugador.');
+        }
+    }
+
+    private function syncJugadorPosiciones(int $jugadorId, array $positionIds, int $estado): void
+    {
+        $actuales = $this->query(
+            'SELECT ID_POSICION FROM FIDE_JUGADOR_POSICIONES_TB WHERE ID_JUGADOR = :jugador_id AND ID_ESTADO = :estado',
+            [':jugador_id' => $jugadorId, ':estado' => ESTADO_ACTIVO],
+            'No fue posible consultar las posiciones actuales del jugador.'
+        );
+        $actualesIds = array_map(static fn(array $row): int => (int) $row['ID_POSICION'], $actuales);
+
+        foreach (array_diff($actualesIds, $positionIds) as $positionId) {
+            $this->call('FIDE_JUGADOR_POSICIONES_TB_ELIMINAR_SP', [$jugadorId, $positionId], 'No fue posible quitar una posicion del jugador.');
+        }
+
+        foreach (array_diff($positionIds, $actualesIds) as $positionId) {
+            $this->call('FIDE_JUGADOR_POSICIONES_TB_INSERTAR_SP', [$jugadorId, $positionId, $estado], 'No fue posible asignar una posicion al jugador.');
         }
     }
 

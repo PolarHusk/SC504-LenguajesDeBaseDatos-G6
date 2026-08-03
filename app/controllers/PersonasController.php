@@ -43,7 +43,7 @@ final class PersonasController extends ModuleController
                     ['key' => 'apellido_materno', 'column' => 'APELLIDO_MATERNO', 'label' => 'Apellido materno', 'type' => 'text'],
                     ['key' => 'cedula', 'column' => 'CEDULA', 'label' => 'Cedula', 'type' => 'text', 'pattern' => '[0-9]{9}', 'maxLength' => 9, 'inputMode' => 'numeric', 'digitsOnly' => true],
                     ['key' => 'id_categoria', 'column' => 'ID_CATEGORIA', 'label' => 'Categoria', 'type' => 'select', 'optionsTable' => 'categorias', 'optionValue' => 'ID_CATEGORIA', 'optionLabel' => 'NOMBRE_CATEGORIA', 'table' => false],
-                    ['key' => 'id_posiciones', 'column' => 'ID_POSICIONES', 'label' => 'Posiciones', 'type' => 'checkboxes', 'optionsTable' => 'posiciones', 'optionValue' => 'ID_POSICION', 'optionLabel' => 'NOMBRE_POSICION', 'table' => false, 'createOnly' => true],
+                    ['key' => 'id_posiciones', 'column' => 'ID_POSICIONES', 'label' => 'Posiciones', 'type' => 'checkboxes', 'optionsTable' => 'posiciones', 'optionValue' => 'ID_POSICION', 'optionLabel' => 'NOMBRE_POSICION', 'table' => false],
                     ['key' => 'dorsal', 'column' => 'DORSAL', 'label' => 'Dorsal', 'type' => 'number'],
                     ['key' => 'fecha_nacimiento', 'column' => 'FECHA_NACIMIENTO', 'label' => 'Fecha nacimiento', 'type' => 'date'],
                 ],
