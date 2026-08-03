@@ -170,6 +170,13 @@ textarea {
 .payment-player-option strong, .payment-player-option span { display: block; }
 .payment-player-option span, .optional { color: var(--muted); font-size: 13px; font-weight: 500; margin-top: 3px; }
 .payment-detail { margin-top: 20px; }
+.payment-pending { margin-top: 18px; }
+.payment-pending h4 { margin: 0 0 8px; font-size: 17px; }
+.payment-pending-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.payment-pending-option { border: 1px solid #d5a43a; border-radius: 8px; padding: 9px 12px; background: #fffaf0; color: var(--ink); text-align: left; cursor: pointer; }
+.payment-pending-option:hover, .payment-pending-option:focus-visible { background: #f5e3b6; border-color: #a97813; }
+.payment-pending-option strong, .payment-pending-option span { display: block; }
+.payment-pending-option span { color: var(--muted); font-size: 13px; margin-top: 2px; }
 .payment-history { margin-top: 18px; }
 .payment-history h4, .payment-box h4 { margin: 0 0 8px; font-size: 17px; }
 .payment-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
@@ -545,6 +552,63 @@ label {
 .field-control .uniform-input {
     min-height: 42px;
     border-radius: 8px;
+}
+
+.searchable-select {
+    position: relative;
+}
+
+.searchable-select .select-search {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink);
+    font-size: 14px;
+}
+
+.searchable-select .form-select {
+    display: none;
+}
+
+.combo-results {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 4px);
+    width: 100%;
+    max-height: 224px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(16, 32, 60, 0.16);
+}
+
+.combo-option {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+}
+
+.combo-option:hover,
+.combo-option:focus-visible {
+    background: #eef5ff;
+    color: var(--blue);
+    outline: none;
+}
+
+.combo-empty {
+    margin: 0;
+    padding: 10px 12px;
+    color: var(--muted);
+    font-size: 13px;
 }
 
 .field-control .multi-select {

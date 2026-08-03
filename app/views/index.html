@@ -61,16 +61,16 @@
                         <div id="paymentResults" class="payment-results hidden"></div>
                         <section id="paymentDetail" class="payment-detail hidden">
                             <div id="paymentPlayer" class="player-summary"></div>
-                            <div class="payment-history">
-                                <h4>Registro de pagos</h4>
-                                <div class="table-wrapper"><table><thead><tr><th>Período</th><th>Monto</th><th>Fecha</th><th>Estado</th></tr></thead><tbody id="paymentHistory"></tbody></table></div>
-                            </div>
+                            <section class="payment-pending">
+                                <h4>Mensualidades pendientes</h4>
+                                <div id="paymentPendingList" class="payment-pending-list"></div>
+                            </section>
                             <form id="payRegistrationForm" class="payment-box stack-form">
                                 <h4>Registrar pago de inscripción</h4>
                                 <div class="payment-form-grid">
                                     <div><label for="paymentMonth">Mes</label><select id="paymentMonth" class="form-select" required></select></div>
-                                    <div><label for="paymentYear">Año</label><input id="paymentYear" type="number" min="2000" class="form-control" required></div>
-                                    <div><label for="paymentAmount">Monto (₡)</label><input id="paymentAmount" type="number" min="0.01" step="0.01" class="form-control" placeholder="0.00" required></div>
+                                    <div class="hidden"><label for="paymentYear">Año</label><input id="paymentYear" type="number" min="2000" class="form-control" required></div>
+                                    <div><label for="paymentAmount">Monto (₡)</label><input id="paymentAmount" type="number" class="form-control" readonly></div>
                                     <div><label for="paymentMethod">Método de pago</label><select id="paymentMethod" class="form-select" required><option value="">Seleccione una opción</option><option value="Transferencia">Transferencia</option><option value="SINPE Móvil">SINPE Móvil</option></select></div>
                                     <div><label for="paymentReference">Número de referencia <span class="optional">(opcional)</span></label><input id="paymentReference" maxlength="80" class="form-control" placeholder="Comprobante o referencia"></div>
                                     <div><label for="paymentNotes">Observaciones <span class="optional">(opcional)</span></label><input id="paymentNotes" maxlength="160" class="form-control" placeholder="Detalle adicional"></div>

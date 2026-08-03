@@ -63,7 +63,6 @@ let selectedPaymentPlayer = null;
 
 function init() {
     bindTabs();
-    loadStates();
     loginForm.addEventListener('submit', login);
     paymentSearchForm.addEventListener('submit', searchPaymentPlayers);
     payRegistrationForm.addEventListener('submit', registerPayment);
@@ -110,19 +109,35 @@ async function loadPaymentPlayer(playerId) {
         paymentDetail.classList.remove('hidden');
         document.getElementById('paymentPlayer').innerHTML = `<h2>${escapeHtml(data.player.NOMBRE_COMPLETO)}</h2><p>Cédula: ${escapeHtml(data.player.CEDULA)} · Categoría: ${escapeHtml(data.player.NOMBRE_CATEGORIA)}</p>`;
         const payments = data.payments || [];
-        document.getElementById('paymentHistory').innerHTML = payments.length ? payments.map((item) => `<tr><td>${monthName(item.MES)} ${escapeHtml(item.ANIO)}</td><td>${formatCurrency(item.MONTO)}</td><td>${formatDate(item.FECHA_PAGO)}</td><td><span class="badge-status">${escapeHtml(item.NOMBRE_ESTADO)}</span></td></tr>`).join('') : '<tr><td colspan="4">Este jugador no tiene pagos registrados.</td></tr>';
-        preparePaymentForm();
+        const pendingPayments = payments;
+        renderPendingPayments(pendingPayments);
+        preparePaymentForm(pendingPayments);
         clearMessage(paymentMessage);
     } catch (error) { showMessage(paymentMessage, error.message, true); }
 }
 
-function preparePaymentForm() {
+function renderPendingPayments(pendingPayments) {
+    const pendingList = document.getElementById('paymentPendingList');
+    pendingList.innerHTML = pendingPayments.length
+        ? pendingPayments.map((payment) => `<button type="button" class="payment-pending-option" data-invoice-id="${escapeHtml(payment.ID_FACTURACION_INSCRIPCION)}"><strong>${monthName(payment.MES)} ${escapeHtml(payment.ANIO)}</strong><span>${formatCurrency(payment.MONTO)}</span></button>`).join('')
+        : '<p class="hint">No tiene mensualidades pendientes por pagar.</p>';
+
+    pendingList.querySelectorAll('[data-invoice-id]').forEach((button) => button.addEventListener('click', () => {
+        const option = document.querySelector(`#paymentMonth option[data-invoice-id="${button.dataset.invoiceId}"]`);
+        if (!option) return;
+        document.getElementById('paymentMonth').value = option.value;
+        updatePaymentAmount();
+        document.getElementById('payRegistrationForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }));
+}
+
+function preparePaymentForm(pendingPayments) {
+    const form = document.getElementById('payRegistrationForm');
     const month = document.getElementById('paymentMonth');
-    const now = new Date();
-    month.innerHTML = Array.from({ length: 12 }, (_, index) => `<option value="${index + 1}">${monthName(index + 1)}</option>`).join('');
-    month.value = String(now.getMonth() + 1);
-    document.getElementById('paymentYear').value = now.getFullYear();
-    document.getElementById('paymentAmount').value = '';
+    form.classList.toggle('hidden', !pendingPayments.length);
+    month.innerHTML = pendingPayments.map((payment) => `<option value="${escapeHtml(payment.MES)}" data-year="${escapeHtml(payment.ANIO)}" data-amount="${escapeHtml(payment.MONTO)}" data-invoice-id="${escapeHtml(payment.ID_FACTURACION_INSCRIPCION)}">${monthName(payment.MES)} ${escapeHtml(payment.ANIO)}</option>`).join('');
+    month.onchange = updatePaymentAmount;
+    updatePaymentAmount();
     document.getElementById('paymentMethod').value = '';
     document.getElementById('paymentReference').value = '';
     document.getElementById('paymentNotes').value = '';
@@ -131,11 +146,11 @@ function preparePaymentForm() {
 async function registerPayment(event) {
     event.preventDefault();
     if (!selectedPaymentPlayer) return;
+    const period = document.getElementById('paymentMonth').options[document.getElementById('paymentMonth').selectedIndex];
     const payload = {
         jugador_id: selectedPaymentPlayer.ID_JUGADOR,
-        mes: document.getElementById('paymentMonth').value,
-        anio: document.getElementById('paymentYear').value,
-        monto: document.getElementById('paymentAmount').value,
+        mes: period?.value,
+        anio: period?.dataset.year,
         metodo_pago: document.getElementById('paymentMethod').value,
         referencia: document.getElementById('paymentReference').value.trim(),
         observaciones: document.getElementById('paymentNotes').value.trim(),
@@ -438,7 +453,10 @@ function ensurePrimaryFieldControl(field) {
         replacement.maxLength = 100;
         replacement.placeholder = 'Digite el valor';
     }
-    recordNameInput.replaceWith(replacement);
+    const currentControl = recordNameInput.parentElement?.classList.contains('searchable-select')
+        ? recordNameInput.parentElement
+        : recordNameInput;
+    currentControl.replaceWith(replacement);
     recordNameInput = replacement;
 }
 
@@ -536,14 +554,22 @@ async function loadDynamicSelectOptions(table) {
     }));
 }
 
+function updatePaymentAmount() {
+    const month = document.getElementById('paymentMonth');
+    const option = month.options[month.selectedIndex];
+    document.getElementById('paymentAmount').value = option?.dataset.amount || '';
+    document.getElementById('paymentYear').value = option?.dataset.year || '';
+}
+
 function populateSelectOptions(input, options, field, valueColumn, labelColumn) {
     const selectedValues = input.multiple
         ? [...input.selectedOptions].map((option) => option.value)
         : [input.value];
     const placeholder = input.multiple ? '' : '<option value="">Seleccione una opcion</option>';
-    input.innerHTML = [placeholder, ...options.map((option) =>
-        `<option value="${escapeHtml(option[valueColumn])}">${escapeHtml(getOptionLabel(option, { ...field, optionValue: valueColumn, optionLabel: labelColumn }))}</option>`
-    )].filter(Boolean).join('');
+    input.innerHTML = [placeholder, ...options.map((option) => {
+        const label = getOptionLabel(option, { ...field, optionValue: valueColumn, optionLabel: labelColumn });
+        return `<option value="${escapeHtml(option[valueColumn])}" data-search-label="${escapeHtml(label)}">${escapeHtml(label)}</option>`;
+    })].filter(Boolean).join('');
     if (input.multiple) {
         [...input.options].forEach((option) => {
             option.selected = selectedValues.includes(option.value);
@@ -551,6 +577,84 @@ function populateSelectOptions(input, options, field, valueColumn, labelColumn) 
     } else {
         input.value = selectedValues[0] || '';
     }
+    ensureSelectSearch(input);
+}
+
+function ensureSelectSearch(select) {
+    if (!select || select.tagName !== 'SELECT' || select.multiple) return;
+
+    let wrapper = select.parentElement?.classList.contains('searchable-select') ? select.parentElement : null;
+    let search;
+    let suggestionList;
+    if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'searchable-select';
+        search = document.createElement('input');
+        search.type = 'text';
+        search.className = 'select-search';
+        search.placeholder = 'Escriba para buscar';
+        search.required = select.required;
+        search.setAttribute('aria-label', `Buscar en ${select.dataset.fieldKey || 'opciones'}`);
+        suggestionList = document.createElement('div');
+        suggestionList.className = 'combo-results hidden';
+        suggestionList.setAttribute('role', 'listbox');
+
+        select.replaceWith(wrapper);
+        wrapper.append(search, suggestionList, select);
+        select.hidden = true;
+        select.required = false;
+        select.dataset.searchReady = 'true';
+
+        search.addEventListener('input', () => {
+            const term = search.value.trim().toLocaleLowerCase('es-CR');
+            const match = [...select.options].find((option) => option.value
+                && (option.dataset.searchLabel || option.textContent || '').toLocaleLowerCase('es-CR') === term);
+            select.value = match?.value || '';
+            search.setCustomValidity(search.value && !match ? 'Seleccione una opcion de la lista.' : '');
+            renderComboResults(select, search.value);
+        });
+        search.addEventListener('focus', () => renderComboResults(select, search.value));
+        suggestionList.addEventListener('click', (event) => {
+            const option = event.target.closest('[data-option-value]');
+            if (!option) return;
+            select.value = option.dataset.optionValue;
+            search.value = option.dataset.optionLabel;
+            search.setCustomValidity('');
+            suggestionList.classList.add('hidden');
+        });
+    } else {
+        search = wrapper.querySelector('.select-search');
+        suggestionList = wrapper.querySelector('.combo-results');
+    }
+
+    const selectedOption = [...select.options].find((option) => option.value === select.value);
+    search.value = selectedOption?.dataset.searchLabel || selectedOption?.textContent || '';
+}
+
+function renderComboResults(select, searchTerm) {
+    const wrapper = select.parentElement;
+    const results = wrapper?.querySelector('.combo-results');
+    if (!results) return;
+
+    const term = String(searchTerm || '').trim().toLocaleLowerCase('es-CR');
+    const matches = [...select.options]
+        .filter((option) => option.value && (!term || (option.dataset.searchLabel || option.textContent || '').toLocaleLowerCase('es-CR').includes(term)))
+        .slice(0, 8);
+    results.innerHTML = matches.length
+        ? matches.map((option) => `<button type="button" class="combo-option" role="option" data-option-value="${escapeHtml(option.value)}" data-option-label="${escapeHtml(option.dataset.searchLabel || option.textContent || '')}">${escapeHtml(option.dataset.searchLabel || option.textContent || '')}</button>`).join('')
+        : '<p class="combo-empty">No hay coincidencias.</p>';
+    results.classList.remove('hidden');
+}
+
+function resetSelectSearch(select) {
+    if (!select || select.tagName !== 'SELECT') return;
+    const wrapper = select.parentElement?.classList.contains('searchable-select') ? select.parentElement : null;
+    const search = wrapper?.querySelector('.select-search');
+    if (search) {
+        search.value = '';
+        search.setCustomValidity('');
+    }
+    wrapper?.querySelector('.combo-results')?.classList.add('hidden');
 }
 
 function ensurePrimaryKeyControl(field, isAutoId) {
@@ -564,7 +668,10 @@ function ensurePrimaryKeyControl(field, isAutoId) {
         if (wantsSelect) {
             replacement.innerHTML = '<option value="">Seleccione una opcion</option>';
         }
-        recordIdInput.replaceWith(replacement);
+        const currentControl = recordIdInput.parentElement?.classList.contains('searchable-select')
+            ? recordIdInput.parentElement
+            : recordIdInput;
+        currentControl.replaceWith(replacement);
         recordIdInput = replacement;
     }
 
@@ -756,6 +863,7 @@ function renderRecords() {
     const columns = getTableColumns(table, false, false);
     const hasEstado = table.statusColumn ?? table.hasEstado;
     const canManage = table.readOnly !== true;
+    const canDeactivate = canManage && currentTable !== 'estados';
     recordsHead.innerHTML = `
         <tr>
             ${columns.map((field) => `<th>${escapeHtml(field.label)}</th>`).join('')}
@@ -778,7 +886,7 @@ function renderRecords() {
         row.innerHTML = `
             ${columns.map((field) => `<td>${escapeHtml(formatRecordValue(getRecordValue(record, field, true), field))}</td>`).join('')}
             ${hasEstado ? `<td><span class="badge-status ${isInactive ? 'inactive' : ''}">${escapeHtml(estadoNombre)}</span></td>` : ''}
-            ${canManage ? '<td><div class="row-actions"><button class="small-btn" data-action="edit" data-index="' + recordIndex + '">Editar</button><button class="small-btn" data-action="delete" data-index="' + recordIndex + '">Desactivar</button></div></td>' : ''}
+            ${canManage ? '<td><div class="row-actions"><button class="small-btn" data-action="edit" data-index="' + recordIndex + '">Editar</button>' + (canDeactivate ? '<button class="small-btn" data-action="delete" data-index="' + recordIndex + '">Desactivar</button>' : '') + '</div></td>' : ''}
         `;
         recordsTable.appendChild(row);
     });
@@ -842,13 +950,17 @@ function fillForm(record) {
     selectedRecord = record;
     modeInput.value = 'edit';
     formTitle.textContent = 'Modificar registro';
+    resetSelectSearch(recordIdInput);
     recordIdInput.value = formatRecordValue(getRecordValue(record, table.pkFields[0]), table.pkFields[0]);
+    ensureSelectSearch(recordIdInput);
     recordIdInput.readOnly = true;
 
     setDynamicInputValues(table.pkFields.slice(1), record, true);
 
     if (table.fields[0]) {
+        resetSelectSearch(recordNameInput);
         recordNameInput.value = formatRecordValue(getRecordValue(record, table.fields[0]), table.fields[0]);
+        ensureSelectSearch(recordNameInput);
     }
 
     setDynamicInputValues(table.fields.slice(1), record, false);
@@ -869,7 +981,9 @@ function clearForm() {
     formTitle.textContent = 'Nuevo registro';
     recordIdInput.value = '';
     recordIdInput.readOnly = false;
+    resetSelectSearch(recordIdInput);
     recordNameInput.value = '';
+    resetSelectSearch(recordNameInput);
     [...extraKeyFields.querySelectorAll('.dynamic-field'), ...extraDataFields.querySelectorAll('.dynamic-field')].forEach((input) => {
         if (input.dataset.checkboxes === 'true') {
             input.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
@@ -880,6 +994,9 @@ function clearForm() {
         }
         input.value = '';
         input.readOnly = false;
+        input.disabled = false;
+        input.parentElement?.querySelector('.select-search')?.removeAttribute('disabled');
+        resetSelectSearch(input);
     });
     table.pkFields.slice(1).forEach((field) => {
         const input = getDynamicInput(field.key);
@@ -984,6 +1101,12 @@ function setDynamicInputValues(fields, record, readOnly) {
         }
         input.value = formatRecordValue(getRecordValue(record, field), field);
         input.readOnly = readOnly;
+        if (input.tagName === 'SELECT') {
+            input.disabled = readOnly;
+            const search = input.parentElement?.querySelector('.select-search');
+            if (search) search.disabled = readOnly;
+            ensureSelectSearch(input);
+        }
     });
 }
 

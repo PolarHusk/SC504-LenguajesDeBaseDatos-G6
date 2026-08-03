@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/core/Session.php';
-require_once dirname(__DIR__) . '/core/Http.php';
-require_once dirname(__DIR__) . '/controllers/PagosController.php';
+require_once dirname(__DIR__, 2) . '/app/core/Session.php';
+require_once dirname(__DIR__, 2) . '/app/core/Http.php';
+require_once dirname(__DIR__, 2) . '/app/controllers/PagosController.php';
 
 start_app_session();
 configure_json_api('GET, POST, OPTIONS');
