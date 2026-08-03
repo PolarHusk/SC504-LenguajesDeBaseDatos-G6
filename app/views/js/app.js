@@ -68,6 +68,8 @@ function init() {
     payRegistrationForm.addEventListener('submit', registerPayment);
     logoutBtn.addEventListener('click', logout);
     tableForm.addEventListener('submit', saveTable);
+    tableForm.addEventListener('invalid', showFormValidationError, true);
+    tableForm.addEventListener('input', keepDigitsOnly);
     recordsTable.addEventListener('click', handleTableClick);
     deleteBtn.addEventListener('click', deleteRecord);
     clearBtn.addEventListener('click', clearForm);
@@ -166,7 +168,9 @@ async function registerPayment(event) {
 function printInvoice(invoice) {
     const popup = window.open('', '_blank', 'width=760,height=800');
     if (!popup) return showMessage(paymentMessage, 'Pago registrado. Permita las ventanas emergentes para imprimir la factura.', false);
-    popup.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Factura ${escapeHtml(invoice.id)}</title><style>body{font-family:Arial,sans-serif;color:#172033;padding:42px}h1{color:#16845b}dl{display:grid;grid-template-columns:180px 1fr;gap:12px}dt{font-weight:bold;color:#667085}dd{margin:0}.total{font-size:24px;font-weight:bold;margin-top:30px}@media print{button{display:none}}</style></head><body><h1>Academia Leiva</h1><h2>Factura de inscripción #${escapeHtml(invoice.id)}</h2><dl><dt>Jugador</dt><dd>${escapeHtml(invoice.player.NOMBRE_COMPLETO)}</dd><dt>Cédula</dt><dd>${escapeHtml(invoice.player.CEDULA)}</dd><dt>Categoría</dt><dd>${escapeHtml(invoice.player.NOMBRE_CATEGORIA)}</dd><dt>Período</dt><dd>${monthName(invoice.mes)} ${escapeHtml(invoice.anio)}</dd><dt>Fecha de pago</dt><dd>${formatDate(invoice.fecha_pago)}</dd><dt>Método</dt><dd>${escapeHtml(invoice.metodo_pago)}</dd><dt>Referencia</dt><dd>${escapeHtml(invoice.referencia || 'No indicada')}</dd></dl><p class="total">Total pagado: ${formatCurrency(invoice.monto)}</p><button onclick="window.print()">Imprimir factura</button></body></html>`);
+    const logoUrl = new URL('logo.jpg', window.location.href).href;
+    popup.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Factura ${escapeHtml(invoice.id)}</title><style>
+        @page{margin:14mm}*{box-sizing:border-box}body{margin:0;background:#edf2f8;color:#111a2e;font-family:Inter,Arial,sans-serif;padding:32px}.invoice{max-width:720px;margin:auto;background:#fff;border:1px solid #d5dce7;box-shadow:0 18px 42px rgba(16,26,50,.16);overflow:hidden}.invoice-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 30px;background:linear-gradient(135deg,#101a32,#245a9b);color:#fff;border-bottom:5px solid #c89432}.invoice-brand{display:flex;align-items:center;gap:14px}.invoice-logo{width:64px;height:64px;object-fit:contain;border-radius:50%;background:#fff;padding:4px}.invoice-brand h1{margin:0;font-size:23px}.invoice-brand p,.invoice-number{margin:4px 0 0;color:#dceafd;font-size:13px}.invoice-number{text-align:right}.invoice-number strong{display:block;color:#f2d27d;font-size:18px;letter-spacing:.04em}.invoice-body{padding:30px}.invoice-body h2{margin:0 0 6px;color:#245a9b;font-size:22px}.invoice-body>p{margin:0 0 24px;color:#66748a}.details{margin:0;border-top:1px solid #d5dce7}.detail{display:grid;grid-template-columns:190px 1fr;gap:18px;padding:12px 0;border-bottom:1px solid #e7ecf3}.detail dt{font-weight:700;color:#66748a}.detail dd{margin:0;color:#111a2e}.total{display:flex;justify-content:space-between;align-items:center;margin-top:26px;padding:18px 20px;background:#edf2f8;border-left:5px solid #c89432;color:#245a9b;font-size:18px;font-weight:800}.total strong{font-size:24px}.invoice-footer{padding:18px 30px;background:#101a32;color:#dceafd;font-size:12px;text-align:center}.print-button{display:block;margin:24px auto 0;padding:11px 20px;border:0;border-radius:7px;background:#245a9b;color:#fff;font-weight:700;cursor:pointer}@media print{body{background:#fff;padding:0}.invoice{box-shadow:none;border:0}.print-button{display:none}}</style></head><body><article class="invoice"><header class="invoice-header"><div class="invoice-brand"><img class="invoice-logo" src="${logoUrl}" alt="Logo Academia Leiva"><div><h1>Academia Leiva</h1><p>Formación deportiva</p></div></div><div class="invoice-number">Factura de inscripción<strong>#${escapeHtml(invoice.id)}</strong></div></header><main class="invoice-body"><h2>Comprobante de pago</h2><p>Gracias por formar parte de nuestra academia.</p><dl class="details"><div class="detail"><dt>Jugador</dt><dd>${escapeHtml(invoice.player.NOMBRE_COMPLETO)}</dd></div><div class="detail"><dt>Cédula</dt><dd>${escapeHtml(invoice.player.CEDULA)}</dd></div><div class="detail"><dt>Categoría</dt><dd>${escapeHtml(invoice.player.NOMBRE_CATEGORIA)}</dd></div><div class="detail"><dt>Período</dt><dd>${monthName(invoice.mes)} ${escapeHtml(invoice.anio)}</dd></div><div class="detail"><dt>Fecha de pago</dt><dd>${formatDate(invoice.fecha_pago)}</dd></div><div class="detail"><dt>Método de pago</dt><dd>${escapeHtml(invoice.metodo_pago)}</dd></div><div class="detail"><dt>Referencia</dt><dd>${escapeHtml(invoice.referencia || 'No indicada')}</dd></div></dl><div class="total"><span>Total pagado</span><strong>${formatCurrency(invoice.monto)}</strong></div></main><footer class="invoice-footer">Academia Leiva · Comprobante generado por el sistema administrativo</footer></article><button class="print-button" onclick="window.print()">Imprimir factura</button></body></html>`);
     popup.document.close();
     popup.focus();
 }
@@ -463,7 +467,7 @@ function ensurePrimaryFieldControl(field) {
 function renderDynamicInputs(container, fields) {
     container.innerHTML = fields.map((field) => `
         <div class="field-control ${isWideField(field) ? 'wide-field' : ''} ${field.editOnly ? 'edit-only-field hidden' : ''} ${field.createOnly ? 'create-only-field' : ''}">
-            <label for="field_${field.key}">${escapeHtml(field.label)}</label>
+            <label ${field.type === 'checkboxes' ? `id="label_${escapeHtml(field.key)}"` : `for="field_${escapeHtml(field.key)}"`}>${escapeHtml(field.label)}</label>
             ${renderFieldControl(field)}
         </div>
     `).join('');
@@ -472,7 +476,7 @@ function renderDynamicInputs(container, fields) {
 function renderFieldControl(field) {
     if (field.type === 'checkboxes') {
         return `
-            <div id="field_${field.key}" class="checklist dynamic-field uniform-input" data-field-key="${escapeHtml(field.key)}" data-checkboxes="true" role="group" aria-label="${escapeHtml(field.label)}">
+            <div id="field_${field.key}" class="checklist dynamic-field uniform-input" data-field-key="${escapeHtml(field.key)}" data-checkboxes="true" role="group" aria-labelledby="label_${escapeHtml(field.key)}">
                 <p class="checklist-hint">Seleccione una o varias posiciones.</p>
                 <div class="checklist-options"></div>
             </div>
@@ -500,6 +504,10 @@ function renderFieldControl(field) {
     }
 
     const step = field.type === 'number' ? ' step="any"' : '';
+    const pattern = field.pattern ? ` pattern="${escapeHtml(field.pattern)}"` : '';
+    const maxLength = field.maxLength ? ` maxlength="${Number(field.maxLength)}"` : '';
+    const inputMode = field.inputMode ? ` inputmode="${escapeHtml(field.inputMode)}"` : '';
+    const digitsOnly = field.digitsOnly ? ' data-digits-only="true"' : '';
     const required = field.editOnly ? '' : ' required';
     return `
         <input
@@ -509,6 +517,10 @@ function renderFieldControl(field) {
             data-field-key="${escapeHtml(field.key)}"
             placeholder="${escapeHtml(field.label)}"
             ${step}
+            ${pattern}
+            ${maxLength}
+            ${inputMode}
+            ${digitsOnly}
             ${required}>
     `;
 }
@@ -542,8 +554,10 @@ async function loadDynamicSelectOptions(table) {
                 optionsContainer.innerHTML = options.map((option) => {
                     const value = String(option[field.optionValue]);
                     const checked = selectedValues.includes(value) ? ' checked' : '';
-                    return `<label class="checklist-option"><input type="checkbox" value="${escapeHtml(value)}"${checked}>${escapeHtml(option[field.optionLabel])}</label>`;
+                    const checkboxId = `field_${field.key}_${value}`;
+                    return `<div class="checklist-option"><input id="${escapeHtml(checkboxId)}" name="${escapeHtml(field.key)}[]" type="checkbox" value="${escapeHtml(value)}"${checked}><label for="${escapeHtml(checkboxId)}">${escapeHtml(option[field.optionLabel])}</label></div>`;
                 }).join('');
+                configureChecklistValidation(input);
                 return;
             }
 
@@ -787,7 +801,7 @@ async function loadRecords(forceRefresh = false) {
         records = tableCache.get(currentTable);
         applyRecordFilters();
         showMessage(messageBox, 'Registros cargados desde memoria.');
-        return;
+        return true;
     }
 
     try {
@@ -796,11 +810,13 @@ async function loadRecords(forceRefresh = false) {
         tableCache.set(currentTable, records);
         applyRecordFilters();
         showMessage(messageBox, data.message || 'Registros cargados correctamente.');
+        return true;
     } catch (error) {
         records = [];
         renderRecords();
         if (error.status === 401) showAccess();
         showMessage(messageBox, error.message, true);
+        return false;
     }
 }
 
@@ -914,7 +930,8 @@ function formatRecordValue(value, field) {
 async function saveTable(event) {
     event.preventDefault();
     const payload = readTableForm();
-    const method = modeInput.value === 'edit' ? 'PUT' : 'POST';
+    const isUpdate = modeInput.value === 'edit';
+    const method = isUpdate ? 'PUT' : 'POST';
 
     try {
         const data = await requestJson(tableUrl(currentTable), {
@@ -922,12 +939,14 @@ async function saveTable(event) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
-        showMessage(messageBox, data.message || 'Guardado correctamente.');
         clearForm();
         tableCache.delete(currentTable);
         tableCache.delete(`options:${currentTable}`);
         activateRecordTab('records', false);
-        loadRecords(true);
+        const recordsLoaded = await loadRecords(true);
+        if (recordsLoaded) {
+            showMessage(messageBox, data.message || (isUpdate ? 'El registro se actualizó correctamente.' : 'El registro se agregó correctamente.'));
+        }
     } catch (error) {
         showMessage(messageBox, error.message, true);
     }
@@ -1159,14 +1178,57 @@ function setEditOnlyFields(isEdit) {
     });
 }
 
+function showFormValidationError(event) {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement || input instanceof HTMLSelectElement || input instanceof HTMLTextAreaElement)) return;
+
+    const checklist = input.closest('[data-checkboxes="true"]');
+    const labelId = checklist?.getAttribute('aria-labelledby');
+    const label = labelId
+        ? document.getElementById(labelId)
+        : (input.id ? document.querySelector(`label[for="${input.id}"]`) : null);
+    const fieldName = label?.textContent?.trim() || input.getAttribute('placeholder') || 'este campo';
+    const detail = input.validationMessage || 'Complete este campo para continuar.';
+
+    showMessage(messageBox, `Revise ${fieldName}: ${detail}`, true);
+}
+
+function keepDigitsOnly(event) {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement) || input.dataset.digitsOnly !== 'true') return;
+
+    const maxLength = Number(input.maxLength) || 9;
+    input.value = input.value.replace(/\D/g, '').slice(0, maxLength);
+}
+
 function setCreateOnlyFields(isEdit) {
     document.querySelectorAll('.create-only-field').forEach((fieldBox) => {
         fieldBox.classList.toggle('hidden', isEdit);
         fieldBox.querySelectorAll('input, textarea, select').forEach((input) => {
+            if (input.type === 'checkbox') {
+                input.required = false;
+                input.disabled = isEdit;
+                return;
+            }
             input.required = !isEdit;
             input.disabled = isEdit;
         });
+        fieldBox.querySelectorAll('[data-checkboxes="true"]').forEach((checklist) => configureChecklistValidation(checklist));
     });
+}
+
+function configureChecklistValidation(checklist) {
+    const checkboxes = [...checklist.querySelectorAll('input[type="checkbox"]')];
+    if (!checkboxes.length) return;
+
+    const updateValidity = () => {
+        const isRequired = !checkboxes.every((checkbox) => checkbox.disabled);
+        const hasSelection = checkboxes.some((checkbox) => checkbox.checked);
+        checkboxes[0].setCustomValidity(isRequired && !hasSelection ? 'Seleccione al menos una posicion.' : '');
+    };
+
+    checkboxes.forEach((checkbox) => checkbox.addEventListener('change', updateValidity));
+    updateValidity();
 }
 
 function getDynamicInput(key) {
@@ -1190,8 +1252,19 @@ function readInputValue(input, field) {
 }
 
 async function requestJson(url, options = {}) {
-    const response = await fetch(url, options);
-    const data = await response.json();
+    let response;
+    try {
+        response = await fetch(url, options);
+    } catch {
+        throw new Error('No fue posible conectar con el servidor. Verifique su conexión e intente nuevamente.');
+    }
+
+    let data;
+    try {
+        data = await response.json();
+    } catch {
+        throw new Error('El servidor no pudo procesar la solicitud. Intente nuevamente o contacte al administrador.');
+    }
     if (!response.ok) {
         const error = new Error(data.error || 'No fue posible completar la solicitud.');
         error.status = response.status;

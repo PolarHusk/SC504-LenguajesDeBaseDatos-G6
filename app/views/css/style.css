@@ -652,6 +652,11 @@ label {
     accent-color: var(--gold);
 }
 
+.checklist-option label {
+    margin: 0;
+    cursor: pointer;
+}
+
 .field-control textarea.uniform-input {
     min-height: 92px;
     resize: vertical;
@@ -791,9 +796,9 @@ tr:hover td { background: #f8fafc; }
     margin-bottom: 14px;
     padding: 12px 14px;
     border-radius: 8px;
-    background: #e7f0ff;
-    border: 1px solid #bdd3ff;
-    color: #173a7a;
+    background: #e8f7ee;
+    border: 1px solid #b9e4c8;
+    color: #17643a;
 }
 
 .message.error {

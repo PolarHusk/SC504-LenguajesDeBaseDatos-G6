@@ -74,6 +74,13 @@ final class PersonasModel extends OracleModel
             throw new InvalidArgumentException('Debe seleccionar al menos una posicion.');
         }
 
+        $cedula = $this->validCedula($data);
+        $categoriaId = (int) $this->required($data, 'id_categoria', 'ID Categoria');
+        $dorsal = (int) $this->required($data, 'dorsal', 'Dorsal');
+        if (!$isUpdate) {
+            $this->validateNewJugador($cedula, $categoriaId, $dorsal);
+        }
+
         $address = $data['direccion'] ?? null;
         if (!is_array($address)) {
             throw new InvalidArgumentException('Debe completar la direccion.');
@@ -88,14 +95,13 @@ final class PersonasModel extends OracleModel
             $addressModel->update($addressId, $address);
         }
 
-        $cedula = $this->required($data, 'cedula', 'Cedula');
         $values = [
             $cedula,
-            (int) $this->required($data, 'id_categoria', 'ID Categoria'),
+            $categoriaId,
             $this->required($data, 'nombre', 'Nombre'),
             $this->required($data, 'apellido_materno', 'Apellido materno'),
             $this->required($data, 'apellido_paterno', 'Apellido paterno'),
-            (int) $this->required($data, 'dorsal', 'Dorsal'),
+            $dorsal,
             $this->required($data, 'fecha_nacimiento', 'Fecha nacimiento'),
             $this->state($data),
             $addressId,
@@ -127,6 +133,31 @@ final class PersonasModel extends OracleModel
                 $this->state($data),
             ], 'No fue posible asignar una posicion al jugador.');
         }
+    }
+
+    private function validateNewJugador(string $cedula, int $categoriaId, int $dorsal): void
+    {
+        foreach ($this->listView('FIDE_JUGADORES_V', 'ID_JUGADOR', false) as $jugador) {
+            $existingCedula = preg_replace('/\D/', '', (string) ($jugador['CEDULA'] ?? ''));
+            if ($existingCedula === $cedula) {
+                throw new InvalidArgumentException('Ya existe un jugador registrado con esa cedula.');
+            }
+
+            if ((int) ($jugador['ID_CATEGORIA'] ?? 0) === $categoriaId
+                && (int) ($jugador['DORSAL'] ?? 0) === $dorsal) {
+                throw new InvalidArgumentException('El dorsal seleccionado ya está asignado a otro jugador de esa categoria.');
+            }
+        }
+    }
+
+    private function validCedula(array $data): string
+    {
+        $cedula = trim((string) $this->required($data, 'cedula', 'Cedula'));
+        if (!preg_match('/^\d{9}$/', $cedula)) {
+            throw new InvalidArgumentException('La cedula debe contener exactamente 9 digitos, sin guiones ni espacios.');
+        }
+
+        return $cedula;
     }
 
     public function deleteJugador(array $data): void

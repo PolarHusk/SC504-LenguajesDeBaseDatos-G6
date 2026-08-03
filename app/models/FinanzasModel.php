@@ -24,7 +24,7 @@ final class FinanzasModel extends OracleModel
         ];
 
         if ($isUpdate) {
-            array_unshift($values, (int) $this->required($data, 'id', 'ID Factura'));
+            array_unshift($values, (string) $this->required($data, 'id', 'ID Factura'));
             $this->call('FIDE_FACTURACION_INSCRIPCIONES_TB_MODIFICAR_SP', $values, 'No fue posible actualizar la facturacion.', [5]);
             return;
         }
@@ -34,6 +34,6 @@ final class FinanzasModel extends OracleModel
 
     public function deleteFacturacion(array $data): void
     {
-        $this->call('FIDE_FACTURACION_INSCRIPCIONES_TB_ELIMINAR_SP', [(int) $this->required($data, 'id', 'ID Factura')], 'No fue posible desactivar la facturacion.');
+        $this->call('FIDE_FACTURACION_INSCRIPCIONES_TB_ELIMINAR_SP', [(string) $this->required($data, 'id', 'ID Factura')], 'No fue posible desactivar la facturacion.');
     }
 }

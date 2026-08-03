@@ -21,7 +21,8 @@ final class FinanzasController extends ModuleController
         return [
             'facturacion_inscripciones' => [
                 'title' => 'Facturacion Inscripciones',
-                'pkFields' => [['key' => 'id', 'column' => 'ID_FACTURACION_INSCRIPCION', 'label' => 'ID Factura', 'type' => 'number']],
+                // Puede superar el límite seguro de enteros de JavaScript/PHP.
+                'pkFields' => [['key' => 'id', 'column' => 'ID_FACTURACION_INSCRIPCION', 'label' => 'ID Factura', 'type' => 'text']],
                 'fields' => [
                     ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'Jugador', 'type' => 'select', 'optionsTable' => 'jugadores', 'optionValue' => 'ID_JUGADOR', 'optionLabel' => 'JUGADOR_OPCION', 'table' => false],
                     ['key' => 'mes', 'column' => 'MES', 'label' => 'Mes', 'type' => 'select', 'options' => [

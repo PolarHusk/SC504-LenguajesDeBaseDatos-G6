@@ -70,7 +70,8 @@ final class PagosModel extends OracleModel
             $observation .= ' | ' . $notes;
         }
 
-        $invoiceId = (int) $pendingPayment['ID_FACTURACION_INSCRIPCION'];
+        // No convertir a entero: el código de factura puede ser mayor que PHP_INT_MAX.
+        $invoiceId = (string) $pendingPayment['ID_FACTURACION_INSCRIPCION'];
         $paymentDate = date('Y-m-d');
         $this->call(
             'FIDE_FACTURACION_INSCRIPCIONES_TB_MODIFICAR_SP',

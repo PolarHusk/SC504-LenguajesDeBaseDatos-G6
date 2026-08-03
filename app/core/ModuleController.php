@@ -40,7 +40,7 @@ abstract class ModuleController
                 $isUpdate = $method === 'PUT';
                 $this->saveTable($table, read_json_body(), $isUpdate);
                 send_json([
-                    'message' => $isUpdate ? 'Registro actualizado correctamente.' : 'Registro insertado correctamente.',
+                    'message' => $isUpdate ? 'El registro se actualizó correctamente.' : 'El registro se agregó correctamente.',
                 ], $isUpdate ? 200 : 201);
             }
 
@@ -54,7 +54,14 @@ abstract class ModuleController
         } catch (InvalidArgumentException $exception) {
             send_json(['error' => $exception->getMessage()], 400);
         } catch (Throwable $exception) {
-            send_json(['error' => $exception->getMessage()], 500);
+            error_log(sprintf('Error en %s/%s: %s', $this->label(), $table, $exception->getMessage()));
+            $operation = match ($_SERVER['REQUEST_METHOD'] ?? 'GET') {
+                'POST' => 'agregar',
+                'PUT' => 'actualizar',
+                'DELETE' => 'desactivar',
+                default => 'cargar',
+            };
+            send_json(['error' => "No fue posible {$operation} el registro. Verifique los datos e intente nuevamente."], 500);
         }
     }
 }
