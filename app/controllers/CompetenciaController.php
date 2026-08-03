@@ -23,14 +23,14 @@ final class CompetenciaController extends ModuleController
                 'title' => 'Partidos',
                 'pkFields' => [['key' => 'id', 'column' => 'ID_PARTIDO', 'label' => 'ID Partido', 'type' => 'number']],
                 'fields' => [
-                    ['key' => 'id_categoria', 'column' => 'ID_CATEGORIA', 'label' => 'ID Categoria', 'type' => 'number', 'table' => false],
-                    ['key' => 'id_tipopartidos', 'column' => 'ID_TIPOPARTIDOS', 'label' => 'ID Tipo partido', 'type' => 'number', 'table' => false],
-                    ['key' => 'id_temporada', 'column' => 'ID_TEMPORADA', 'label' => 'ID Temporada', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_categoria', 'column' => 'ID_CATEGORIA', 'label' => 'Categoria', 'type' => 'select', 'optionsTable' => 'categorias', 'optionValue' => 'ID_CATEGORIA', 'optionLabel' => 'NOMBRE_CATEGORIA', 'table' => false],
+                    ['key' => 'id_tipopartidos', 'column' => 'ID_TIPOPARTIDOS', 'label' => 'Tipo de partido', 'type' => 'select', 'optionsTable' => 'tipo_partidos', 'optionValue' => 'ID_TIPOPARTIDOS', 'optionLabel' => 'TIPO_DE_PARTIDO', 'table' => false],
+                    ['key' => 'id_temporada', 'column' => 'ID_TEMPORADA', 'label' => 'Temporada', 'type' => 'select', 'optionsTable' => 'temporadas', 'optionValue' => 'ID_TEMPORADA', 'optionLabel' => 'TEMPORADA_OPCION', 'optionLabelParts' => ['TIPO_TEMPORADA', 'ANIO'], 'table' => false],
                     ['key' => 'fecha', 'column' => 'FECHA', 'label' => 'Fecha', 'type' => 'date'],
                     ['key' => 'rival', 'column' => 'RIVAL', 'label' => 'Rival', 'type' => 'text'],
                     ['key' => 'goles_favor', 'column' => 'GOLES_FAVOR', 'label' => 'Goles favor', 'type' => 'number'],
                     ['key' => 'goles_contra', 'column' => 'GOLES_CONTRA', 'label' => 'Goles contra', 'type' => 'number'],
-                    ['key' => 'id_sede', 'column' => 'ID_SEDE', 'label' => 'ID Sede', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_sede', 'column' => 'ID_SEDE', 'label' => 'Sede', 'type' => 'select', 'optionsTable' => 'sedes', 'optionValue' => 'ID_SEDE', 'optionLabel' => 'NOMBRE_SEDE', 'table' => false],
                 ],
                 'displayFields' => [
                     ['key' => 'categoria', 'column' => 'CATEGORIA', 'label' => 'Categoria', 'type' => 'text'],
@@ -43,8 +43,8 @@ final class CompetenciaController extends ModuleController
             'asistencia' => [
                 'title' => 'Asistencia',
                 'pkFields' => [
-                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'ID Partido', 'type' => 'number', 'table' => false],
-                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'Partido', 'type' => 'select', 'optionsTable' => 'partidos', 'optionValue' => 'ID_PARTIDO', 'optionLabel' => 'PARTIDO_OPCION', 'optionLabelParts' => ['FECHA', 'RIVAL', 'TEMPORADA'], 'table' => false],
+                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'Jugador', 'type' => 'select', 'optionsTable' => 'jugadores', 'optionValue' => 'ID_JUGADOR', 'optionLabel' => 'JUGADOR_OPCION', 'table' => false],
                 ],
                 'fields' => [],
                 'displayFields' => [
@@ -62,7 +62,7 @@ final class CompetenciaController extends ModuleController
                     ['key' => 'pases_exitosos', 'column' => 'PASES_EXITOSOS', 'label' => 'Pases exitosos', 'type' => 'number'],
                     ['key' => 'pases_fallidos', 'column' => 'PASES_FALLIDOS', 'label' => 'Pases fallidos', 'type' => 'number'],
                     ['key' => 'posesion_balon', 'column' => 'POSESION_BALON', 'label' => 'Posesion balon', 'type' => 'number'],
-                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'ID Partido', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'Partido', 'type' => 'select', 'optionsTable' => 'partidos', 'optionValue' => 'ID_PARTIDO', 'optionLabel' => 'PARTIDO_OPCION', 'optionLabelParts' => ['FECHA', 'RIVAL', 'TEMPORADA'], 'table' => false],
                 ],
                 'displayFields' => [['key' => 'partido', 'column' => 'PARTIDO', 'label' => 'Partido', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false,
@@ -71,8 +71,8 @@ final class CompetenciaController extends ModuleController
                 'title' => 'Estadistica Jugador',
                 'pkFields' => [['key' => 'id', 'column' => 'ID_ESTADISTICA_JUGADOR', 'label' => 'ID Estadistica jugador', 'type' => 'number']],
                 'fields' => [
-                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number', 'table' => false],
-                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'ID Partido', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'Jugador', 'type' => 'select', 'optionsTable' => 'jugadores', 'optionValue' => 'ID_JUGADOR', 'optionLabel' => 'JUGADOR_OPCION', 'table' => false],
+                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'Partido', 'type' => 'select', 'optionsTable' => 'partidos', 'optionValue' => 'ID_PARTIDO', 'optionLabel' => 'PARTIDO_OPCION', 'optionLabelParts' => ['FECHA', 'RIVAL', 'TEMPORADA'], 'table' => false],
                     ['key' => 'pases', 'column' => 'PASES', 'label' => 'Pases', 'type' => 'number'],
                     ['key' => 'pases_exitosos', 'column' => 'PASES_EXITOSOS', 'label' => 'Pases exitosos', 'type' => 'number'],
                     ['key' => 'regates', 'column' => 'REGATES', 'label' => 'Regates', 'type' => 'number'],
@@ -94,9 +94,9 @@ final class CompetenciaController extends ModuleController
             'tarjetas' => [
                 'title' => 'Tarjetas',
                 'pkFields' => [
-                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'ID Partido', 'type' => 'number', 'table' => false],
-                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number', 'table' => false],
-                    ['key' => 'id_tipotarjeta', 'column' => 'ID_TIPOTARJETA', 'label' => 'ID Tipo tarjeta', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_partido', 'column' => 'ID_PARTIDO', 'label' => 'Partido', 'type' => 'select', 'optionsTable' => 'partidos', 'optionValue' => 'ID_PARTIDO', 'optionLabel' => 'PARTIDO_OPCION', 'optionLabelParts' => ['FECHA', 'RIVAL', 'TEMPORADA'], 'table' => false],
+                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'Jugador', 'type' => 'select', 'optionsTable' => 'jugadores', 'optionValue' => 'ID_JUGADOR', 'optionLabel' => 'JUGADOR_OPCION', 'table' => false],
+                    ['key' => 'id_tipotarjeta', 'column' => 'ID_TIPOTARJETA', 'label' => 'Tipo de tarjeta', 'type' => 'select', 'optionsTable' => 'tipotarjetas', 'optionValue' => 'ID_TIPOTARJETA', 'optionLabel' => 'COLOR', 'table' => false],
                 ],
                 'fields' => [['key' => 'cantidad_tarjetas', 'column' => 'CANTIDAD_TARJETAS', 'label' => 'Cantidad tarjetas', 'type' => 'number']],
                 'displayFields' => [

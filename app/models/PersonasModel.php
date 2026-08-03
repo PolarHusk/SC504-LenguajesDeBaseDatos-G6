@@ -12,6 +12,11 @@ final class PersonasModel extends OracleModel
         return $this->listView('FIDE_EMPLEADOS_V', 'ID_EMPLEADO', true, 'FIDE_EMPLEADOS_CON_DIRECCION_V');
     }
 
+    public function listEmpleadoOptions(): array
+    {
+        return $this->listView('FIDE_EMPLEADOS_V', 'ID_EMPLEADO', false);
+    }
+
     public function saveEmpleado(array $data, bool $isUpdate): void
     {
         $address = $data['direccion'] ?? null;
@@ -61,6 +66,14 @@ final class PersonasModel extends OracleModel
 
     public function saveJugador(array $data, bool $isUpdate): void
     {
+        $positionIds = array_values(array_unique(array_filter(
+            array_map('intval', is_array($data['id_posiciones'] ?? null) ? $data['id_posiciones'] : []),
+            static fn(int $id): bool => $id > 0
+        )));
+        if (!$isUpdate && $positionIds === []) {
+            throw new InvalidArgumentException('Debe seleccionar al menos una posicion.');
+        }
+
         $address = $data['direccion'] ?? null;
         if (!is_array($address)) {
             throw new InvalidArgumentException('Debe completar la direccion.');
@@ -75,8 +88,9 @@ final class PersonasModel extends OracleModel
             $addressModel->update($addressId, $address);
         }
 
+        $cedula = $this->required($data, 'cedula', 'Cedula');
         $values = [
-            $this->required($data, 'cedula', 'Cedula'),
+            $cedula,
             (int) $this->required($data, 'id_categoria', 'ID Categoria'),
             $this->required($data, 'nombre', 'Nombre'),
             $this->required($data, 'apellido_materno', 'Apellido materno'),
@@ -94,6 +108,25 @@ final class PersonasModel extends OracleModel
         }
 
         $this->call('FIDE_JUGADORES_TB_INSERTAR_SP', $values, 'No fue posible crear el jugador.', [6]);
+
+        $jugadorId = 0;
+        foreach ($this->listView('FIDE_JUGADORES_V', 'ID_JUGADOR', false) as $jugador) {
+            if ((string) ($jugador['CEDULA'] ?? '') === (string) $cedula) {
+                $jugadorId = (int) ($jugador['ID_JUGADOR'] ?? 0);
+                break;
+            }
+        }
+        if ($jugadorId <= 0) {
+            throw new RuntimeException('No fue posible identificar el jugador creado para asignar sus posiciones.');
+        }
+
+        foreach ($positionIds as $positionId) {
+            $this->call('FIDE_JUGADOR_POSICIONES_TB_INSERTAR_SP', [
+                $jugadorId,
+                $positionId,
+                $this->state($data),
+            ], 'No fue posible asignar una posicion al jugador.');
+        }
     }
 
     public function deleteJugador(array $data): void

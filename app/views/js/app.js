@@ -32,7 +32,7 @@ const newRecordTab = document.getElementById('newRecordTab');
 const formTitle = document.getElementById('formTitle');
 const modeInput = document.getElementById('mode');
 const recordIdLabel = document.querySelector('label[for="recordId"]');
-const recordIdInput = document.getElementById('recordId');
+let recordIdInput = document.getElementById('recordId');
 const extraKeyFields = document.getElementById('extraKeyFields');
 const recordNameField = document.getElementById('recordNameField');
 let recordNameInput = document.getElementById('recordName');
@@ -383,11 +383,11 @@ function applyTableLabels() {
     contentGrid.classList.toggle('expanded-form', isExpanded);
     tableForm.classList.toggle('expanded', isExpanded);
     recordIdField.classList.toggle('hidden', table.autoId);
+    ensurePrimaryKeyControl(firstPk, table.autoId);
     recordIdInput.required = !table.autoId;
     recordIdLabel.textContent = firstPk.label;
-    recordIdInput.type = table.autoId ? 'hidden' : firstPk.type;
-    recordIdInput.step = firstPk.type === 'number' ? 'any' : '';
     recordIdInput.placeholder = firstPk.label;
+    recordIdInput.dataset.fieldKey = firstPk.key;
     renderDynamicInputs(extraKeyFields, table.pkFields.slice(1));
 
     if (firstField) {
@@ -395,8 +395,10 @@ function applyTableLabels() {
         recordNameField.classList.remove('hidden');
         recordNameInput.required = true;
         recordNameLabel.textContent = firstField.label;
-        recordNameInput.type = firstField.type;
-        recordNameInput.step = firstField.type === 'number' ? 'any' : '';
+        if (recordNameInput.tagName !== 'SELECT') {
+            recordNameInput.type = firstField.type;
+            recordNameInput.step = firstField.type === 'number' ? 'any' : '';
+        }
         recordNameInput.placeholder = firstField.label;
         recordNameInput.dataset.fieldKey = firstField.key;
     } else {
@@ -442,7 +444,7 @@ function ensurePrimaryFieldControl(field) {
 
 function renderDynamicInputs(container, fields) {
     container.innerHTML = fields.map((field) => `
-        <div class="field-control ${isWideField(field) ? 'wide-field' : ''} ${field.editOnly ? 'edit-only-field hidden' : ''}">
+        <div class="field-control ${isWideField(field) ? 'wide-field' : ''} ${field.editOnly ? 'edit-only-field hidden' : ''} ${field.createOnly ? 'create-only-field' : ''}">
             <label for="field_${field.key}">${escapeHtml(field.label)}</label>
             ${renderFieldControl(field)}
         </div>
@@ -450,10 +452,19 @@ function renderDynamicInputs(container, fields) {
 }
 
 function renderFieldControl(field) {
-    if (field.type === 'select') {
+    if (field.type === 'checkboxes') {
         return `
-            <select id="field_${field.key}" class="form-select dynamic-field uniform-input" data-field-key="${escapeHtml(field.key)}" required>
-                <option value="">Seleccione una opcion</option>
+            <div id="field_${field.key}" class="checklist dynamic-field uniform-input" data-field-key="${escapeHtml(field.key)}" data-checkboxes="true" role="group" aria-label="${escapeHtml(field.label)}">
+                <p class="checklist-hint">Seleccione una o varias posiciones.</p>
+                <div class="checklist-options"></div>
+            </div>
+        `;
+    }
+
+    if (field.type === 'select' || field.type === 'multiselect') {
+        return `
+            <select id="field_${field.key}" class="form-select dynamic-field uniform-input ${field.type === 'multiselect' ? 'multi-select' : ''}" data-field-key="${escapeHtml(field.key)}" ${field.type === 'multiselect' ? 'multiple size="6"' : ''} required>
+                ${field.type === 'multiselect' ? '' : '<option value="">Seleccione una opcion</option>'}
             </select>
         `;
     }
@@ -486,27 +497,104 @@ function renderFieldControl(field) {
 
 async function loadDynamicSelectOptions(table) {
     const selectFields = [...(table.pkFields || []), ...(table.fields || [])]
-        .filter((field) => field.type === 'select' && field.optionsTable);
+        .filter((field) => ['select', 'multiselect', 'checkboxes'].includes(field.type) && (field.optionsTable || Array.isArray(field.options)));
 
     await Promise.all(selectFields.map(async (field) => {
         const input = getDynamicInput(field.key);
         if (!input) return;
 
         try {
-            if (!tableCache.has(`options:${field.optionsTable}`)) {
-                const data = await requestJson(tableUrl(field.optionsTable));
-                tableCache.set(`options:${field.optionsTable}`, data.records || []);
+            if (Array.isArray(field.options)) {
+                populateSelectOptions(input, field.options, field, 'value', 'label');
+                return;
             }
-            const options = tableCache.get(`options:${field.optionsTable}`) || [];
-            const selectedValue = input.value;
-            input.innerHTML = ['<option value="">Seleccione una opcion</option>', ...options.map((option) =>
-                `<option value="${escapeHtml(option[field.optionValue])}">${escapeHtml(option[field.optionLabel])}</option>`
-            )].join('');
-            input.value = selectedValue;
+
+            const optionsCacheKey = `options:${field.optionsModule || ''}:${field.optionsTable}`;
+            if (!tableCache.has(optionsCacheKey)) {
+                const optionsUrl = field.optionsModule
+                    ? `${MODULE_URL}?modulo=${encodeURIComponent(field.optionsModule)}&tabla=${encodeURIComponent(field.optionsTable)}`
+                    : tableUrl(field.optionsTable);
+                const data = await requestJson(optionsUrl);
+                tableCache.set(optionsCacheKey, data.records || []);
+            }
+            const options = tableCache.get(optionsCacheKey) || [];
+            if (field.type === 'checkboxes') {
+                const selectedValues = [...input.querySelectorAll('input:checked')].map((option) => option.value);
+                const optionsContainer = input.querySelector('.checklist-options');
+                optionsContainer.innerHTML = options.map((option) => {
+                    const value = String(option[field.optionValue]);
+                    const checked = selectedValues.includes(value) ? ' checked' : '';
+                    return `<label class="checklist-option"><input type="checkbox" value="${escapeHtml(value)}"${checked}>${escapeHtml(option[field.optionLabel])}</label>`;
+                }).join('');
+                return;
+            }
+
+            populateSelectOptions(input, options, field, field.optionValue, field.optionLabel);
         } catch (error) {
             showMessage(messageBox, error.message, true);
         }
     }));
+}
+
+function populateSelectOptions(input, options, field, valueColumn, labelColumn) {
+    const selectedValues = input.multiple
+        ? [...input.selectedOptions].map((option) => option.value)
+        : [input.value];
+    const placeholder = input.multiple ? '' : '<option value="">Seleccione una opcion</option>';
+    input.innerHTML = [placeholder, ...options.map((option) =>
+        `<option value="${escapeHtml(option[valueColumn])}">${escapeHtml(getOptionLabel(option, { ...field, optionValue: valueColumn, optionLabel: labelColumn }))}</option>`
+    )].filter(Boolean).join('');
+    if (input.multiple) {
+        [...input.options].forEach((option) => {
+            option.selected = selectedValues.includes(option.value);
+        });
+    } else {
+        input.value = selectedValues[0] || '';
+    }
+}
+
+function ensurePrimaryKeyControl(field, isAutoId) {
+    const wantsSelect = !isAutoId && field.type === 'select';
+    const isSelect = recordIdInput.tagName === 'SELECT';
+    if (wantsSelect !== isSelect) {
+        const replacement = document.createElement(wantsSelect ? 'select' : 'input');
+        replacement.id = 'recordId';
+        replacement.className = wantsSelect ? 'form-select' : 'form-control';
+        replacement.required = !isAutoId;
+        if (wantsSelect) {
+            replacement.innerHTML = '<option value="">Seleccione una opcion</option>';
+        }
+        recordIdInput.replaceWith(replacement);
+        recordIdInput = replacement;
+    }
+
+    if (!wantsSelect) {
+        recordIdInput.type = isAutoId ? 'hidden' : (field.type || 'text');
+        recordIdInput.step = field.type === 'number' ? 'any' : '';
+    }
+}
+
+function getOptionLabel(option, field) {
+    const directLabel = option[field.optionLabel];
+    if (directLabel !== undefined && directLabel !== null && String(directLabel).trim() !== '') {
+        return directLabel;
+    }
+
+    const labelParts = (field.optionLabelParts || [])
+        .map((column) => option[column])
+        .filter((part) => part !== undefined && part !== null && String(part).trim() !== '');
+    if (labelParts.length) {
+        return labelParts.join(' ');
+    }
+
+    const fullName = [option.NOMBRE, option.APELLIDO_PATERNO, option.APELLIDO_MATERNO]
+        .filter((part) => part !== undefined && part !== null && String(part).trim() !== '')
+        .join(' ');
+    if (fullName) {
+        return option.CEDULA ? `${fullName} - Cedula: ${option.CEDULA}` : fullName;
+    }
+
+    return option[field.optionValue] ?? '';
 }
 
 function isComplexTable(table) {
@@ -698,7 +786,8 @@ function renderRecords() {
 
 function getTableColumns(table, includeStatus = false, includeAutoId = true) {
     const pkFields = table.autoId && !includeAutoId ? table.pkFields.slice(1) : table.pkFields;
-    const columns = [...pkFields, ...table.fields, ...(table.displayFields || [])]
+    const displayFields = table.displayFields || [];
+    const columns = [...pkFields, ...displayFields.filter((field) => field.tableBefore), ...table.fields, ...displayFields.filter((field) => !field.tableBefore)]
         .filter((field) => field.table !== false);
     return includeStatus && table.hasEstado ? [...columns, { key: 'id_estado', column: 'ID_ESTADO', label: 'Estado', type: 'number' }] : columns;
 }
@@ -767,6 +856,7 @@ function fillForm(record) {
         setAddressInputValues(record, false);
     }
     setEditOnlyFields(true);
+    setCreateOnlyFields(true);
     recordStatusSelect.value = String(record.ID_ESTADO || getDefaultStateId());
     deleteBtn.disabled = false;
     activateRecordTab('form', true);
@@ -781,6 +871,13 @@ function clearForm() {
     recordIdInput.readOnly = false;
     recordNameInput.value = '';
     [...extraKeyFields.querySelectorAll('.dynamic-field'), ...extraDataFields.querySelectorAll('.dynamic-field')].forEach((input) => {
+        if (input.dataset.checkboxes === 'true') {
+            input.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+                checkbox.checked = false;
+                checkbox.disabled = false;
+            });
+            return;
+        }
         input.value = '';
         input.readOnly = false;
     });
@@ -792,6 +889,7 @@ function clearForm() {
         resetAddressInputs();
     }
     setEditOnlyFields(false);
+    setCreateOnlyFields(false);
     recordStatusSelect.value = getDefaultStateId();
     deleteBtn.disabled = true;
 }
@@ -877,6 +975,13 @@ function setDynamicInputValues(fields, record, readOnly) {
     fields.forEach((field) => {
         const input = getDynamicInput(field.key);
         if (!input) return;
+        if (field.type === 'checkboxes') {
+            input.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+                checkbox.checked = false;
+                checkbox.disabled = readOnly;
+            });
+            return;
+        }
         input.value = formatRecordValue(getRecordValue(record, field), field);
         input.readOnly = readOnly;
     });
@@ -931,12 +1036,31 @@ function setEditOnlyFields(isEdit) {
     });
 }
 
+function setCreateOnlyFields(isEdit) {
+    document.querySelectorAll('.create-only-field').forEach((fieldBox) => {
+        fieldBox.classList.toggle('hidden', isEdit);
+        fieldBox.querySelectorAll('input, textarea, select').forEach((input) => {
+            input.required = !isEdit;
+            input.disabled = isEdit;
+        });
+    });
+}
+
 function getDynamicInput(key) {
     return document.querySelector(`[data-field-key="${key}"]`);
 }
 
 function readInputValue(input, field) {
     if (!input) return null;
+    if (field.type === 'checkboxes') {
+        return [...input.querySelectorAll('input:checked')].map((checkbox) => Number(checkbox.value));
+    }
+    if (input.multiple) {
+        return [...input.selectedOptions]
+            .map((option) => option.value)
+            .filter(Boolean)
+            .map((value) => field.type === 'multiselect' ? Number(value) : value);
+    }
     const value = input.value.trim();
     if (field.type === 'number') return value === '' ? null : Number(value);
     return value;

@@ -29,7 +29,7 @@ final class PersonasController extends ModuleController
                     ['key' => 'edad', 'column' => 'EDAD', 'label' => 'Edad', 'type' => 'number'],
                     ['key' => 'nombre_de_usuario', 'column' => 'NOMBRE_DE_USUARIO', 'label' => 'Usuario', 'type' => 'text'],
                     ['key' => 'contrasenia', 'column' => 'CONTRASENIA', 'label' => 'Contrasenia', 'type' => 'text', 'table' => false],
-                    ['key' => 'id_cargo', 'column' => 'ID_CARGO', 'label' => 'ID Cargo', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_cargo', 'column' => 'ID_CARGO', 'label' => 'Cargo', 'type' => 'select', 'optionsTable' => 'cargos', 'optionValue' => 'ID_CARGO', 'optionLabel' => 'NOMBRE_CARGO', 'table' => false],
                 ],
                 'displayFields' => [['key' => 'cargo', 'column' => 'CARGO', 'label' => 'Cargo', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => true,
@@ -42,7 +42,8 @@ final class PersonasController extends ModuleController
                     ['key' => 'apellido_paterno', 'column' => 'APELLIDO_PATERNO', 'label' => 'Apellido paterno', 'type' => 'text'],
                     ['key' => 'apellido_materno', 'column' => 'APELLIDO_MATERNO', 'label' => 'Apellido materno', 'type' => 'text'],
                     ['key' => 'cedula', 'column' => 'CEDULA', 'label' => 'Cedula', 'type' => 'text'],
-                    ['key' => 'id_categoria', 'column' => 'ID_CATEGORIA', 'label' => 'ID Categoria', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_categoria', 'column' => 'ID_CATEGORIA', 'label' => 'Categoria', 'type' => 'select', 'optionsTable' => 'categorias', 'optionValue' => 'ID_CATEGORIA', 'optionLabel' => 'NOMBRE_CATEGORIA', 'table' => false],
+                    ['key' => 'id_posiciones', 'column' => 'ID_POSICIONES', 'label' => 'Posiciones', 'type' => 'checkboxes', 'optionsTable' => 'posiciones', 'optionValue' => 'ID_POSICION', 'optionLabel' => 'NOMBRE_POSICION', 'table' => false, 'createOnly' => true],
                     ['key' => 'dorsal', 'column' => 'DORSAL', 'label' => 'Dorsal', 'type' => 'number'],
                     ['key' => 'fecha_nacimiento', 'column' => 'FECHA_NACIMIENTO', 'label' => 'Fecha nacimiento', 'type' => 'date'],
                 ],
@@ -54,7 +55,7 @@ final class PersonasController extends ModuleController
                 'pkFields' => [['key' => 'id', 'column' => 'ID_TELEFONO', 'label' => 'ID Telefono', 'type' => 'number']],
                 'fields' => [
                     ['key' => 'numero_telefono', 'column' => 'NUMERO_TELEFONO', 'label' => 'Numero telefono', 'type' => 'text'],
-                    ['key' => 'id_empleado', 'column' => 'ID_EMPLEADO', 'label' => 'ID Empleado', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_empleado', 'column' => 'ID_EMPLEADO', 'label' => 'Empleado', 'type' => 'select', 'optionsTable' => 'empleado_opciones', 'optionsModule' => 'personas', 'optionValue' => 'ID_EMPLEADO', 'optionLabel' => 'EMPLEADO_OPCION', 'table' => false],
                 ],
                 'displayFields' => [['key' => 'empleado', 'column' => 'EMPLEADO', 'label' => 'Empleado', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false,
@@ -68,6 +69,12 @@ final class PersonasController extends ModuleController
                 ],
                 'hasEstado' => false, 'statusColumn' => false, 'autoId' => true, 'hasAddress' => false, 'readOnly' => true,
             ],
+            'empleado_opciones' => [
+                'title' => 'Opciones de empleados',
+                'pkFields' => [['key' => 'id', 'column' => 'ID_EMPLEADO', 'label' => 'ID Empleado', 'type' => 'number']],
+                'fields' => [['key' => 'empleado', 'column' => 'EMPLEADO_OPCION', 'label' => 'Empleado', 'type' => 'text']],
+                'hasEstado' => false, 'statusColumn' => false, 'autoId' => true, 'hasAddress' => false, 'readOnly' => true,
+            ],
         ];
     }
 
@@ -78,6 +85,7 @@ final class PersonasController extends ModuleController
             'jugadores' => $this->model->listJugadores(),
             'telefonos' => $this->model->listTelefonos(),
             'jugador_posiciones' => $this->model->listJugadorPosiciones(),
+            'empleado_opciones' => $this->model->listEmpleadoOptions(),
         };
     }
 

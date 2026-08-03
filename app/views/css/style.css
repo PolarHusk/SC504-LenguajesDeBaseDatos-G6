@@ -547,6 +547,47 @@ label {
     border-radius: 8px;
 }
 
+.field-control .multi-select {
+    min-height: 150px;
+    height: 150px;
+    padding: 6px 8px;
+    overflow-y: auto;
+}
+
+.field-control .checklist {
+    min-height: 150px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.checklist-hint {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.checklist-options {
+    display: grid;
+    gap: 7px;
+}
+
+.checklist-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.checklist-option input {
+    width: auto;
+    min-height: auto;
+    accent-color: var(--gold);
+}
+
 .field-control textarea.uniform-input {
     min-height: 92px;
     resize: vertical;

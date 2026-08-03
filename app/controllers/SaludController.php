@@ -26,7 +26,7 @@ final class SaludController extends ModuleController
                     ['key' => 'nombre', 'column' => 'NOMBRE', 'label' => 'Nombre', 'type' => 'text'],
                     ['key' => 'apellido_paterno', 'column' => 'APELLIDO_PATERNO', 'label' => 'Apellido paterno', 'type' => 'text'],
                     ['key' => 'apellido_materno', 'column' => 'APELLIDO_MATERNO', 'label' => 'Apellido materno', 'type' => 'text'],
-                    ['key' => 'id_especialidad', 'column' => 'ID_ESPECIALIDAD', 'label' => 'ID Especialidad', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_especialidad', 'column' => 'ID_ESPECIALIDAD', 'label' => 'Especialidad', 'type' => 'select', 'optionsTable' => 'especialidades', 'optionValue' => 'ID_ESPECIALIDAD', 'optionLabel' => 'NOMBRE_ESPECIALIDAD', 'table' => false],
                 ],
                 'displayFields' => [['key' => 'especialidad', 'column' => 'ESPECIALIDAD', 'label' => 'Especialidad', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false,
@@ -35,10 +35,10 @@ final class SaludController extends ModuleController
                 'title' => 'Parte Medico',
                 'pkFields' => [['key' => 'id', 'column' => 'ID_PARTEMEDICO', 'label' => 'ID Parte medico', 'type' => 'number']],
                 'fields' => [
-                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'Jugador', 'type' => 'select', 'optionsTable' => 'jugadores', 'optionValue' => 'ID_JUGADOR', 'optionLabel' => 'JUGADOR_OPCION', 'table' => false],
                     ['key' => 'observaciones', 'column' => 'OBSERVACIONES', 'label' => 'Observaciones', 'type' => 'text'],
                     ['key' => 'fecha', 'column' => 'FECHA', 'label' => 'Fecha', 'type' => 'date'],
-                    ['key' => 'id_medico', 'column' => 'ID_MEDICO', 'label' => 'ID Medico', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_medico', 'column' => 'ID_MEDICO', 'label' => 'Medico', 'type' => 'select', 'optionsTable' => 'medicos', 'optionValue' => 'ID_MEDICO', 'optionLabel' => 'MEDICO_OPCION', 'table' => false],
                 ],
                 'displayFields' => [
                     ['key' => 'jugador', 'column' => 'JUGADOR', 'label' => 'Jugador', 'type' => 'text'],
@@ -50,7 +50,7 @@ final class SaludController extends ModuleController
                 'title' => 'Revision Fisica',
                 'pkFields' => [['key' => 'id', 'column' => 'ID_REVISION', 'label' => 'ID Revision', 'type' => 'number']],
                 'fields' => [
-                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'Jugador', 'type' => 'select', 'optionsTable' => 'jugadores', 'optionValue' => 'ID_JUGADOR', 'optionLabel' => 'JUGADOR_OPCION', 'table' => false],
                     ['key' => 'peso', 'column' => 'PESO', 'label' => 'Peso', 'type' => 'number'],
                     ['key' => 'imc', 'column' => 'IMC', 'label' => 'IMC', 'type' => 'number'],
                     ['key' => 'altura', 'column' => 'ALTURA', 'label' => 'Altura', 'type' => 'number'],
@@ -65,7 +65,7 @@ final class SaludController extends ModuleController
                 'fields' => [
                     ['key' => 'descripcion', 'column' => 'DESCRIPCION', 'label' => 'Descripcion', 'type' => 'text'],
                     ['key' => 'fecha_recuperacion', 'column' => 'FECHA_RECUPERACION', 'label' => 'Fecha recuperacion', 'type' => 'date'],
-                    ['key' => 'id_tipolesion', 'column' => 'ID_TIPOLESION', 'label' => 'ID Tipo lesion', 'type' => 'number', 'table' => false],
+                    ['key' => 'id_tipolesion', 'column' => 'ID_TIPOLESION', 'label' => 'Tipo de lesion', 'type' => 'select', 'optionsTable' => 'tipolesion', 'optionValue' => 'ID_TIPOLESION', 'optionLabel' => 'NOMBRE_TIPO_LESION', 'table' => false],
                     ['key' => 'id_partemedico', 'column' => 'ID_PARTEMEDICO', 'label' => 'ID Parte medico', 'type' => 'number'],
                 ],
                 'displayFields' => [['key' => 'tipo_lesion', 'column' => 'TIPO_LESION', 'label' => 'Tipo de lesion', 'type' => 'text']],
