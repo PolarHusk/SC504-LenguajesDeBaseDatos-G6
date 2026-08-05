@@ -13,7 +13,9 @@ let selectedRecord = null;
 const tableCache = new Map();
 const stateCache = new Map();
 const locationCache = new Map();
+const locationApiCache = new Map();
 const moduleGroups = window.APP_MODULES || {};
+const COSTA_RICA_LOCATIONS_API = 'https://raw.githubusercontent.com/lfbvyo/ubicaciones/main/public';
 
 const accessView = document.getElementById('accessView');
 const adminView = document.getElementById('adminView');
@@ -467,7 +469,7 @@ function ensurePrimaryFieldControl(field) {
 
 function renderDynamicInputs(container, fields) {
     container.innerHTML = fields.map((field) => `
-        <div class="field-control ${isWideField(field) ? 'wide-field' : ''} ${field.editOnly ? 'edit-only-field hidden' : ''} ${field.createOnly ? 'create-only-field' : ''}">
+        <div class="field-control ${isFullRowField(field) ? 'wide-field' : ''} ${field.type === 'checkboxes' ? 'checklist-field' : ''} ${field.editOnly ? 'edit-only-field hidden' : ''} ${field.createOnly ? 'create-only-field' : ''}">
             <label ${field.type === 'checkboxes' ? `id="label_${escapeHtml(field.key)}"` : `for="field_${escapeHtml(field.key)}"`}>${escapeHtml(field.label)}</label>
             ${renderFieldControl(field)}
         </div>
@@ -732,6 +734,10 @@ function isWideField(field) {
     return ['observaciones', 'descripcion', 'otras_senias'].includes(field.key);
 }
 
+function isFullRowField(field) {
+    return isWideField(field) || field.type === 'checkboxes';
+}
+
 function renderAddressFields() {
     return `
         <div class="address-section-title">Direccion</div>
@@ -743,13 +749,13 @@ function renderAddressFields() {
         </div>
         <div class="field-control">
             <label for="field_id_canton">Canton</label>
-            <select id="field_id_canton" class="form-select dynamic-field uniform-input" data-field-key="id_canton" required>
+            <select id="field_id_canton" class="form-select dynamic-field uniform-input" data-field-key="id_canton" required disabled>
                 <option value="">Seleccione un canton</option>
             </select>
         </div>
         <div class="field-control">
             <label for="field_id_distrito">Distrito</label>
-            <select id="field_id_distrito" class="form-select dynamic-field uniform-input" data-field-key="id_distrito" required>
+            <select id="field_id_distrito" class="form-select dynamic-field uniform-input" data-field-key="id_distrito" required disabled>
                 <option value="">Seleccione un distrito</option>
             </select>
         </div>
@@ -769,37 +775,111 @@ async function loadLocationOptions() {
                 locationCache.set(key, data.records || []);
             }
         }));
-        populateLocationSelects();
+        await loadApiProvinces();
+        bindLocationDependencies();
     } catch (error) {
         showMessage(messageBox, error.message, true);
     }
 }
 
-function populateLocationSelects() {
-    const locationFields = [
-        ['id_provincia', 'ID_PROVINCIA', 'NOMBRE_PROVINCIA', 'Seleccione una provincia'],
-        ['id_canton', 'ID_CANTON', 'NOMBRE_CANTON', 'Seleccione un canton'],
-        ['id_distrito', 'ID_DISTRITO', 'NOMBRE_DISTRITO', 'Seleccione un distrito'],
-    ];
+async function loadApiProvinces() {
+    const provinceInput = getDynamicInput('id_provincia');
+    if (!provinceInput) return;
+    const provinces = await fetchLocationApi('/provincias.json');
+    populateApiLocationSelect(provinceInput, provinces, 'provincias', 'Seleccione una provincia');
+    const selected = provinceInput.selectedOptions[0];
+    if (selected?.dataset.apiId) await loadApiCantons(selected.dataset.apiId, selected.textContent);
+}
 
-    locationFields.forEach(([key, idColumn, nameColumn, placeholder]) => {
-        const input = getDynamicInput(key);
-        const records = locationCache.get(key === 'id_provincia' ? 'provincias' : key === 'id_canton' ? 'cantones' : 'distritos') || [];
-        if (!input) return;
+function bindLocationDependencies() {
+    const provinceInput = getDynamicInput('id_provincia');
+    const cantonInput = getDynamicInput('id_canton');
+    if (!provinceInput || !cantonInput) return;
 
-        const selectedValue = input.dataset.pendingValue || input.value;
-        if (!records.length) {
-            input.dataset.pendingValue = selectedValue;
-            return;
+    provinceInput.onchange = async () => {
+        const selected = provinceInput.selectedOptions[0];
+        resetLocationSelect('id_canton', 'Seleccione un canton');
+        resetLocationSelect('id_distrito', 'Seleccione un distrito');
+        if (selected?.dataset.apiId) await loadApiCantons(selected.dataset.apiId, selected.textContent);
+    };
+    cantonInput.onchange = async () => {
+        const province = provinceInput.selectedOptions[0];
+        const canton = cantonInput.selectedOptions[0];
+        resetLocationSelect('id_distrito', 'Seleccione un distrito');
+        if (province?.dataset.apiId && canton?.dataset.apiId) {
+            await loadApiDistricts(province.dataset.apiId, canton.dataset.apiId);
         }
+    };
+}
 
-        input.innerHTML = [`<option value="">${placeholder}</option>`, ...records
-            .sort((a, b) => String(a[nameColumn] || '').localeCompare(String(b[nameColumn] || '')))
-            .map((record) => `<option value="${escapeHtml(record[idColumn])}">${escapeHtml(record[nameColumn] || record[idColumn])}</option>`)]
-            .join('');
-        input.value = selectedValue || '';
-        delete input.dataset.pendingValue;
-    });
+async function loadApiCantons(provinceApiId, provinceName) {
+    const cantonInput = getDynamicInput('id_canton');
+    if (!cantonInput) return;
+    const cantons = await fetchLocationApi(`/provincia/${provinceApiId}/cantones.json`);
+    populateApiLocationSelect(cantonInput, cantons, 'cantones', 'Seleccione un canton', provinceName);
+    cantonInput.disabled = false;
+    const selected = cantonInput.selectedOptions[0];
+    if (selected?.dataset.apiId) await loadApiDistricts(provinceApiId, selected.dataset.apiId);
+}
+
+async function loadApiDistricts(provinceApiId, cantonApiId) {
+    const districtInput = getDynamicInput('id_distrito');
+    if (!districtInput) return;
+    const districts = await fetchLocationApi(`/provincia/${provinceApiId}/canton/${cantonApiId}/distritos.json`);
+    populateApiLocationSelect(districtInput, districts, 'distritos', 'Seleccione un distrito');
+    districtInput.disabled = false;
+}
+
+async function fetchLocationApi(path) {
+    const url = `${COSTA_RICA_LOCATIONS_API}${path}`;
+    if (!locationApiCache.has(url)) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('No fue posible cargar las ubicaciones de Costa Rica.');
+        locationApiCache.set(url, response.json());
+    }
+    return locationApiCache.get(url);
+}
+
+function populateApiLocationSelect(input, apiRecords, cacheKey, placeholder, provinceName = '') {
+    const selectedValue = input.dataset.pendingValue || input.value;
+    const options = Object.entries(apiRecords).map(([apiId, name]) => {
+        const localId = findLocalLocationId(cacheKey, name, provinceName, selectedValue);
+        return localId ? { apiId, localId, name } : null;
+    }).filter(Boolean);
+    input.innerHTML = [`<option value="">${placeholder}</option>`, ...options.map((option) =>
+        `<option value="${escapeHtml(option.localId)}" data-api-id="${escapeHtml(option.apiId)}">${escapeHtml(option.name)}</option>`
+    )].join('');
+    input.value = selectedValue || '';
+    delete input.dataset.pendingValue;
+}
+
+function findLocalLocationId(cacheKey, apiName, provinceName = '', selectedValue = '') {
+    const columns = {
+        provincias: ['ID_PROVINCIA', 'NOMBRE_PROVINCIA'],
+        cantones: ['ID_CANTON', 'NOMBRE_CANTON'],
+        distritos: ['ID_DISTRITO', 'NOMBRE_DISTRITO'],
+    };
+    const [idColumn, nameColumn] = columns[cacheKey];
+    const targetName = cacheKey === 'cantones' && normalizeLocation(apiName) === 'CENTRAL'
+        ? provinceName
+        : apiName;
+    const matches = (locationCache.get(cacheKey) || []).filter((record) =>
+        normalizeLocation(record[nameColumn]) === normalizeLocation(targetName)
+    );
+    const match = matches.find((record) => String(record[idColumn]) === String(selectedValue)) || matches[0];
+    return match?.[idColumn] ?? '';
+}
+
+function normalizeLocation(value) {
+    return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+}
+
+function resetLocationSelect(key, placeholder) {
+    const input = getDynamicInput(key);
+    if (!input) return;
+    input.innerHTML = `<option value="">${placeholder}</option>`;
+    input.value = '';
+    input.disabled = true;
 }
 
 async function loadRecords(forceRefresh = false) {
@@ -1154,7 +1234,7 @@ function setAddressInputValues(record, readOnly) {
         input.readOnly = readOnly && input.tagName !== 'SELECT';
         input.disabled = false;
     });
-    populateLocationSelects();
+    loadLocationOptions();
 }
 
 function resetAddressInputs() {
