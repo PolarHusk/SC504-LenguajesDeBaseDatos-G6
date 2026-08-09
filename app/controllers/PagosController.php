@@ -21,11 +21,10 @@ final class PagosController
 
             if ($method === 'GET' && $action === 'buscar') {
                 $cedula = trim((string) ($_GET['cedula'] ?? ''));
-                $nombre = trim((string) ($_GET['nombre'] ?? ''));
-                if ($cedula === '' && $nombre === '') {
+                if ($cedula === '') {
                     send_json(['error' => 'Digite una cédula o el nombre completo del jugador.'], 400);
                 }
-                send_json(['records' => $this->model->searchPlayers($cedula, $nombre)]);
+                send_json(['records' => $this->model->searchPlayers($cedula)]);
             }
 
             if ($method === 'GET' && $action === 'detalle') {

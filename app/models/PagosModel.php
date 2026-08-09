@@ -6,15 +6,16 @@ require_once dirname(__DIR__) . '/core/OracleModel.php';
 
 final class PagosModel extends OracleModel
 {
-    public function searchPlayers(string $cedula, string $nombre): array
+    public function searchPlayers(string $cedula): array
     {
-        $cedula = $this->normalize($cedula);
-        $nombre = $this->normalize($nombre);
+        $cedula = preg_replace('/\D/', '', $cedula);
+        if (!preg_match('/^\d{9}$/', $cedula)) {
+            throw new InvalidArgumentException('La cedula debe contener exactamente 9 digitos.');
+        }
 
-        return array_values(array_filter(array_map([$this, 'playerRecord'], $this->listView('FIDE_JUGADORES_V', 'ID_JUGADOR', false)), function (array $player) use ($cedula, $nombre): bool {
+        return array_values(array_filter(array_map([$this, 'playerRecord'], $this->listView('FIDE_JUGADORES_V', 'ID_JUGADOR', false)), function (array $player) use ($cedula): bool {
             return (int) ($player['ID_ESTADO'] ?? 0) === ESTADO_ACTIVO
-                && ($cedula === '' || str_contains($this->normalize((string) $player['CEDULA']), $cedula))
-                && ($nombre === '' || str_contains($this->normalize((string) $player['NOMBRE_COMPLETO']), $nombre));
+                && preg_replace('/\D/', '', (string) $player['CEDULA']) === $cedula;
         }));
     }
 

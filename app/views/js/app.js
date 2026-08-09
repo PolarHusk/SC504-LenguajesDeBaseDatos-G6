@@ -89,11 +89,14 @@ function init() {
 
 async function searchPaymentPlayers(event) {
     event.preventDefault();
-    const cedula = document.getElementById('paymentCedula').value.trim();
-    const nombre = document.getElementById('paymentName').value.trim();
+    const cedulaInput = document.getElementById('paymentCedula');
+    const cedula = cedulaInput.value.replace(/\D/g, '');
+    cedulaInput.value = cedula;
+    const nombre = '';
+    if (!/^\d{9}$/.test(cedula)) return showMessage(paymentMessage, 'Digite una cedula de 9 digitos.', true);
     if (!cedula && !nombre) return showMessage(paymentMessage, 'Digite una cédula o el nombre completo.', true);
     try {
-        const params = new URLSearchParams({ action: 'buscar', cedula, nombre });
+        const params = new URLSearchParams({ action: 'buscar', cedula });
         const data = await requestJson(`${PAYMENT_URL}?${params}`);
         paymentDetail.classList.add('hidden');
         selectedPaymentPlayer = null;
@@ -435,7 +438,7 @@ function applyTableLabels() {
         extraDataFields.insertAdjacentHTML('beforeend', renderAddressFields());
         loadLocationOptions();
     }
-    recordStatusField.classList.toggle('hidden', !table.hasEstado);
+    updateStatusFieldVisibility();
     deleteBtn.classList.toggle('hidden', currentTable === 'estados' || readOnly);
     newRecordTab.classList.toggle('hidden', readOnly);
     newRecordTab.setAttribute('aria-hidden', String(readOnly));
@@ -1075,6 +1078,7 @@ function fillForm(record) {
     setEditOnlyFields(true);
     setCreateOnlyFields(true);
     recordStatusSelect.value = String(record.ID_ESTADO || getDefaultStateId());
+    updateStatusFieldVisibility();
     deleteBtn.disabled = false;
     activateRecordTab('form', true);
 }
@@ -1113,7 +1117,14 @@ function clearForm() {
     setEditOnlyFields(false);
     setCreateOnlyFields(false);
     recordStatusSelect.value = getDefaultStateId();
+    updateStatusFieldVisibility();
     deleteBtn.disabled = true;
+}
+
+function updateStatusFieldVisibility() {
+    const table = tables[currentTable];
+    const isCreating = modeInput.value === 'create';
+    recordStatusField.classList.toggle('hidden', !table?.hasEstado || isCreating);
 }
 
 async function deleteRecord() {

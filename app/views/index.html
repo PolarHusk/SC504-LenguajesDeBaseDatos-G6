@@ -49,11 +49,7 @@
                         <form id="paymentSearchForm" class="stack-form">
                             <div>
                                 <label for="paymentCedula" class="form-label">Cédula del jugador</label>
-                                <input type="search" id="paymentCedula" class="form-control" placeholder="Ej.: 123456789">
-                            </div>
-                            <div>
-                                <label for="paymentName" class="form-label">Nombre completo</label>
-                                <input type="search" id="paymentName" class="form-control" placeholder="Nombre y apellidos">
+                                <input type="search" id="paymentCedula" class="form-control" placeholder="Ej.: 123456789" inputmode="numeric" pattern="[0-9]{9}" maxlength="9" required>
                             </div>
                             <button type="submit" class="btn btn-success w-100">Buscar jugador</button>
                         </form>

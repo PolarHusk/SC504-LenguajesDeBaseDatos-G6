@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/Http.php';
+require_once dirname(__DIR__) . '/config/constants.php';
 
 abstract class ModuleController
 {
@@ -38,7 +39,11 @@ abstract class ModuleController
 
             if ($method === 'POST' || $method === 'PUT') {
                 $isUpdate = $method === 'PUT';
-                $this->saveTable($table, read_json_body(), $isUpdate);
+                $data = read_json_body();
+                if (!$isUpdate && ($this->schema()[$table]['hasEstado'] ?? false)) {
+                    $data['id_estado'] = ESTADO_ACTIVO;
+                }
+                $this->saveTable($table, $data, $isUpdate);
                 send_json([
                     'message' => $isUpdate ? 'El registro se actualizó correctamente.' : 'El registro se agregó correctamente.',
                 ], $isUpdate ? 200 : 201);
