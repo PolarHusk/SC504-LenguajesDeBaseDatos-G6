@@ -36,16 +36,14 @@ async function loadAvailability() {
 }
 
 function renderAvailability(records) {
-    const available = records.filter((record) => record.ESTADO === 'DISPONIBLE').length;
-    const injured = records.filter((record) => record.ESTADO === 'LESIONADO').length;
-    const suspended = records.filter((record) => record.ESTADO === 'SUSPENDIDO').length;
+    const available = records.filter((record) => Number(record.ID_ESTADO) === 1 && Number(record.LESIONES) === 0).length;
+    const injured = records.filter((record) => Number(record.LESIONES) > 0).length;
     document.getElementById('availableCount').textContent = String(available);
     document.getElementById('injuredCount').textContent = String(injured);
-    document.getElementById('suspendedCount').textContent = String(suspended);
     document.getElementById('availabilityCount').textContent = `${records.length} registros`;
     document.getElementById('availabilityTable').innerHTML = records.length ? records.map((record) => `
-        <tr><td><a class="table-link" href="jugador.html?id=${encodeURIComponent(record.ID_JUGADOR)}">${escapeHtml(record.NOMBRE_COMPLETO)}</a></td><td>${escapeHtml(record.NOMBRE_CATEGORIA)}</td><td><span class="status-pill status-${String(record.ESTADO || '').toLowerCase()}">${escapeHtml(record.ESTADO)}</span></td><td>${Number(record.LESIONES) > 0 ? `<a class="table-link" href="jugador-lesiones.html?id=${encodeURIComponent(record.ID_JUGADOR)}">${escapeHtml(record.LESIONES)}</a>` : '0'}</td><td>${escapeHtml(record.TARJETAS_AMARILLAS)}</td><td>${escapeHtml(record.TARJETAS_ROJAS)}</td><td><a class="table-link" href="jugador.html?id=${encodeURIComponent(record.ID_JUGADOR)}">Perfil</a></td></tr>
-    `).join('') : '<tr><td colspan="7" class="empty-result">No hay jugadores para estos filtros.</td></tr>';
+        <tr><td><a class="table-link" href="jugador.html?id=${encodeURIComponent(record.ID_JUGADOR)}">${escapeHtml(record.NOMBRE_COMPLETO)}</a></td><td>${escapeHtml(record.NOMBRE_CATEGORIA)}</td><td><span class="status-pill status-${String(record.ESTADO || '').toLowerCase()}">${escapeHtml(record.ESTADO)}</span></td><td>${Number(record.LESIONES) > 0 ? `<a class="table-link" href="jugador-lesiones.html?id=${encodeURIComponent(record.ID_JUGADOR)}">${escapeHtml(record.LESIONES)}</a>` : '0'}</td><td>${escapeHtml(record.FECHA_RECUPERACION || 'No definida')}</td><td>${escapeHtml(record.TARJETAS_AMARILLAS)}</td><td>${escapeHtml(record.TARJETAS_ROJAS)}</td><td><a class="table-link" href="jugador.html?id=${encodeURIComponent(record.ID_JUGADOR)}">Perfil</a></td></tr>
+    `).join('') : '<tr><td colspan="8" class="empty-result">No hay jugadores para estos filtros.</td></tr>';
 }
 
 function showMessage(message) { const element = document.getElementById('availabilityMessage'); element.textContent = message; element.classList.remove('hidden'); }

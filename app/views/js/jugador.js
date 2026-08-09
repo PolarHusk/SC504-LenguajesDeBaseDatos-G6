@@ -54,7 +54,6 @@ function renderProfile(record) {
         ['Tarjetas amarillas', record.TARJETAS_AMARILLAS],
         ['Tarjetas rojas', record.TARJETAS_ROJAS],
         ['Lesiones', record.LESIONES, `jugador-lesiones.html?id=${encodeURIComponent(record.ID_JUGADOR)}`],
-        ['Monto pagado', record.MONTO_PAGADO],
     ];
     document.getElementById('statisticsGrid').innerHTML = statistics.map(([label, value, link]) => `
         <article class="profile-stat-card">

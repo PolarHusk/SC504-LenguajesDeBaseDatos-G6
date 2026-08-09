@@ -10,6 +10,7 @@ const matchMessage = document.getElementById('matchMessage');
 const playerMessage = document.getElementById('playerMessage');
 let matchesLoaded = false;
 let playerSearchTimer = null;
+let matchSearchTimer = null;
 
 document.addEventListener('DOMContentLoaded', initConsultation);
 
@@ -19,11 +20,15 @@ async function initConsultation() {
         event.preventDefault();
         loadMatches();
     });
+    matchFilters.querySelectorAll('input, select').forEach((control) => {
+        control.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', scheduleMatchSearch);
+    });
     playerFilters.addEventListener('submit', (event) => {
         event.preventDefault();
         loadPlayers();
     });
     document.getElementById('clearMatchFilters').addEventListener('click', () => {
+        window.clearTimeout(matchSearchTimer);
         matchFilters.reset();
         loadMatches();
     });
@@ -80,6 +85,11 @@ async function loadMatches() {
     const data = await requestJson(`${CONSULTATION_URL}?${params}`);
     matchesLoaded = true;
     renderMatches(data.records || []);
+}
+
+function scheduleMatchSearch() {
+    window.clearTimeout(matchSearchTimer);
+    matchSearchTimer = window.setTimeout(() => loadMatches(), 350);
 }
 
 async function loadPlayers() {
