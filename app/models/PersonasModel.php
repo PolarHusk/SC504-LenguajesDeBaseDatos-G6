@@ -249,6 +249,33 @@ final class PersonasModel extends OracleModel
         $this->call('FIDE_TELEFONOS_TB_ELIMINAR_SP', [(int) $this->required($data, 'id', 'ID Telefono')], 'No fue posible desactivar el telefono.');
     }
 
+    public function listCorreos(): array
+    {
+        return $this->listView('FIDE_CORREOS_V', 'ID_CORREO');
+    }
+
+    public function saveCorreo(array $data, bool $isUpdate): void
+    {
+        $correo = trim((string) $this->required($data, 'correo_electronico', 'Correo electronico'));
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException('Ingrese un correo electronico valido.');
+        }
+
+        $values = [$correo, (int) $this->required($data, 'id_empleado', 'ID Empleado'), $this->state($data)];
+        if ($isUpdate) {
+            array_unshift($values, (int) $this->required($data, 'id', 'ID Correo'));
+            $this->call('FIDE_CORREOS_TB_MODIFICAR_SP', $values, 'No fue posible actualizar el correo.');
+            return;
+        }
+
+        $this->call('FIDE_CORREOS_TB_INSERTAR_SP', $values, 'No fue posible crear el correo.');
+    }
+
+    public function deleteCorreo(array $data): void
+    {
+        $this->call('FIDE_CORREOS_TB_ELIMINAR_SP', [(int) $this->required($data, 'id', 'ID Correo')], 'No fue posible desactivar el correo.');
+    }
+
     public function listJugadorPosiciones(): array
     {
         return $this->listView('FIDE_JUGADOR_POSICIONES_V', 'ID_JUGADOR', false);

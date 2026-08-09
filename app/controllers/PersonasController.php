@@ -65,6 +65,16 @@ final class PersonasController extends ModuleController
                 'displayFields' => [['key' => 'empleado', 'column' => 'EMPLEADO', 'label' => 'Empleado', 'type' => 'text']],
                 'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false,
             ],
+            'correos' => [
+                'title' => 'Correos de empleados',
+                'pkFields' => [['key' => 'id', 'column' => 'ID_CORREO', 'label' => 'ID Correo', 'type' => 'number']],
+                'fields' => [
+                    ['key' => 'correo_electronico', 'column' => 'CORREO_ELECTRONICO', 'label' => 'Correo electronico', 'type' => 'email'],
+                    ['key' => 'id_empleado', 'column' => 'ID_EMPLEADO', 'label' => 'Empleado', 'type' => 'select', 'optionsTable' => 'empleado_opciones', 'optionsModule' => 'personas', 'optionValue' => 'ID_EMPLEADO', 'optionLabel' => 'EMPLEADO_OPCION', 'table' => false],
+                ],
+                'displayFields' => [['key' => 'empleado', 'column' => 'EMPLEADO', 'label' => 'Empleado', 'type' => 'text']],
+                'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false,
+            ],
             'jugador_posiciones' => [
                 'title' => 'Posiciones de jugadores',
                 'pkFields' => [['key' => 'id_jugador', 'column' => 'ID_JUGADOR', 'label' => 'ID Jugador', 'type' => 'number', 'table' => false]],
@@ -89,6 +99,7 @@ final class PersonasController extends ModuleController
             'empleados' => $this->model->listEmpleados(),
             'jugadores' => $this->model->listJugadores(),
             'telefonos' => $this->model->listTelefonos(),
+            'correos' => $this->model->listCorreos(),
             'jugador_posiciones' => $this->model->listJugadorPosiciones(),
             'empleado_opciones' => $this->model->listEmpleadoOptions(),
         };
@@ -100,6 +111,7 @@ final class PersonasController extends ModuleController
             'empleados' => $this->model->saveEmpleado($data, $isUpdate),
             'jugadores' => $this->model->saveJugador($data, $isUpdate),
             'telefonos' => $this->model->saveTelefono($data, $isUpdate),
+            'correos' => $this->model->saveCorreo($data, $isUpdate),
             'jugador_posiciones' => $this->model->saveJugadorPosicion($data, $isUpdate),
         };
     }
@@ -110,6 +122,7 @@ final class PersonasController extends ModuleController
             'empleados' => $this->model->deleteEmpleado($data),
             'jugadores' => $this->model->deleteJugador($data),
             'telefonos' => $this->model->deleteTelefono($data),
+            'correos' => $this->model->deleteCorreo($data),
             'jugador_posiciones' => $this->model->deleteJugadorPosicion($data),
         };
     }
