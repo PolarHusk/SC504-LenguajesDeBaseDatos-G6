@@ -104,20 +104,7 @@
                     <button id="reloadBtn" class="btn btn-light">Actualizar Tabla</button>
                 </section>
 
-                <section id="dashboardPanel" class="stats-grid" aria-label="Resumen de registros">
-                    <article class="stat-card panel">
-                        <span>Total</span>
-                        <strong id="totalRecords">0</strong>
-                    </article>
-                    <article class="stat-card panel">
-                        <span id="activeRecordsLabel">Activos</span>
-                        <strong id="activeRecords">0</strong>
-                    </article>
-                    <article class="stat-card panel">
-                        <span>Coincidencias</span>
-                        <strong id="visibleRecords">0</strong>
-                    </article>
-                </section>
+                <p id="dashboardSummary" class="records-summary" aria-live="polite">Mostrando 0 registros.</p>
 
                 <div class="record-tabs" role="tablist" aria-label="Gestión de registros">
                     <button type="button" id="recordsTab" class="record-tab active" role="tab" aria-selected="true" aria-controls="recordsPanel" tabindex="0">Registros</button>
@@ -130,6 +117,7 @@
                             <h3 id="formTitle">Nuevo registro</h3>
                             <button type="button" id="clearBtn" class="link-button">Limpiar</button>
                         </div>
+                        <div id="formMessage" class="message hidden"></div>
 
                         <input type="hidden" id="mode" value="create">
                         <div class="form-fields">

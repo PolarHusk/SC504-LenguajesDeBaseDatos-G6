@@ -80,6 +80,33 @@ abstract class OracleModel
         oci_free_statement($statement);
     }
 
+    protected function callNumberFunction(string $function, array $arguments, string $message, array $dateIndexes = []): int
+    {
+        $connection = $this->connection();
+        $placeholders = [];
+        foreach ($arguments as $index => $value) {
+            $placeholder = ':p' . $index;
+            $placeholders[] = in_array($index, $dateIndexes, true) ? "TO_DATE({$placeholder}, 'YYYY-MM-DD')" : $placeholder;
+        }
+
+        $statement = oci_parse($connection, 'BEGIN :result := ' . PACKAGE_NAME . '.' . $function . '(' . implode(', ', $placeholders) . '); END;');
+        if (!$statement) {
+            $error = oci_error($connection);
+            throw new RuntimeException($error['message'] ?? $message);
+        }
+
+        foreach ($arguments as $index => &$value) {
+            oci_bind_by_name($statement, ':p' . $index, $value, 255);
+        }
+        unset($value);
+
+        $result = 0;
+        oci_bind_by_name($statement, ':result', $result, 32, SQLT_INT);
+        $this->execute($statement, $message);
+        oci_free_statement($statement);
+        return $result;
+    }
+
     protected function callReturning(string $procedure, array $arguments, string $message): int
     {
         $connection = $this->connection();

@@ -50,4 +50,14 @@ if ($moduleKey === 'configuracion' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 
     send_json(['message' => 'Estados cargados correctamente.', 'records' => $modules[$moduleKey]->states()]);
 }
 
+if ($moduleKey === 'personas' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && $action === 'validar_edad') {
+    require_authenticated_session('Debe iniciar sesion para validar la edad del jugador.');
+    $fechaNacimiento = trim((string) ($_GET['fecha_nacimiento'] ?? ''));
+    $categoriaId = filter_input(INPUT_GET, 'id_categoria', FILTER_VALIDATE_INT);
+    if ($fechaNacimiento === '' || !$categoriaId) {
+        send_json(['error' => 'Debe indicar la fecha de nacimiento y la categoria.'], 400);
+    }
+    send_json(['valid' => $modules['personas']->isPlayerAgeValid($fechaNacimiento, $categoriaId)]);
+}
+
 $modules[$moduleKey]->handle();

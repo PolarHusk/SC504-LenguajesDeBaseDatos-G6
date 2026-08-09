@@ -94,6 +94,8 @@ final class PersonasModel extends OracleModel
 
         $cedula = $this->validCedula($data);
         $categoriaId = (int) $this->required($data, 'id_categoria', 'ID Categoria');
+        $fechaNacimiento = $this->required($data, 'fecha_nacimiento', 'Fecha nacimiento');
+        $this->validatePlayerAge((string) $fechaNacimiento, $categoriaId);
         $dorsal = (int) $this->required($data, 'dorsal', 'Dorsal');
         if (!$isUpdate) {
             $this->validateNewJugador($cedula, $categoriaId, $dorsal);
@@ -120,7 +122,7 @@ final class PersonasModel extends OracleModel
             $this->required($data, 'apellido_materno', 'Apellido materno'),
             $this->required($data, 'apellido_paterno', 'Apellido paterno'),
             $dorsal,
-            $this->required($data, 'fecha_nacimiento', 'Fecha nacimiento'),
+            $fechaNacimiento,
             $this->state($data),
             $addressId,
         ];
@@ -185,6 +187,23 @@ final class PersonasModel extends OracleModel
                 && (int) ($jugador['DORSAL'] ?? 0) === $dorsal) {
                 throw new InvalidArgumentException('El dorsal seleccionado ya está asignado a otro jugador de esa categoria.');
             }
+        }
+    }
+
+    public function isPlayerAgeValid(string $fechaNacimiento, int $categoriaId): bool
+    {
+        return $this->callNumberFunction(
+            'FIDE_JUGADORES_TB_VALIDAR_EDAD_CATEGORIA_FN',
+            [$fechaNacimiento, $categoriaId],
+            'No fue posible validar la edad del jugador.',
+            [0]
+        ) === 1;
+    }
+
+    private function validatePlayerAge(string $fechaNacimiento, int $categoriaId): void
+    {
+        if (!$this->isPlayerAgeValid($fechaNacimiento, $categoriaId)) {
+            throw new InvalidArgumentException('La edad del jugador no corresponde a la categoria seleccionada.');
         }
     }
 

@@ -50,12 +50,10 @@ const clearBtn = document.getElementById('clearBtn');
 const deleteBtn = document.getElementById('deleteBtn');
 const reloadBtn = document.getElementById('reloadBtn');
 const messageBox = document.getElementById('messageBox');
+const formMessage = document.getElementById('formMessage');
 const recordSearch = document.getElementById('recordSearch');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-const totalRecords = document.getElementById('totalRecords');
-const activeRecordsLabel = document.getElementById('activeRecordsLabel');
-const activeRecords = document.getElementById('activeRecords');
-const visibleRecords = document.getElementById('visibleRecords');
+const dashboardSummary = document.getElementById('dashboardSummary');
 const paymentSearchForm = document.getElementById('paymentSearchForm');
 const payRegistrationForm = document.getElementById('payRegistrationForm');
 const paymentMessage = document.getElementById('paymentMessage');
@@ -933,15 +931,12 @@ function clearRecordFilters() {
 
 function updateDashboard() {
     const table = tables[currentTable];
-    const hasStatusColumn = table?.statusColumn ?? table?.hasEstado;
-    const activeCount = hasStatusColumn
-        ? records.filter((record) => String(record.ID_ESTADO ?? '') === '1').length
-        : records.length;
-
-    totalRecords.textContent = String(records.length);
-    activeRecordsLabel.textContent = hasStatusColumn ? 'Activos' : 'Registros';
-    activeRecords.textContent = String(activeCount);
-    visibleRecords.textContent = String(filteredRecords.length);
+    const recordLabel = (table?.title || 'registros').toLowerCase();
+    const visibleCount = filteredRecords.length;
+    const totalCount = records.length;
+    dashboardSummary.textContent = visibleCount === totalCount
+        ? `Mostrando ${totalCount} ${recordLabel}.`
+        : `Mostrando ${visibleCount} de ${totalCount} ${recordLabel}.`;
 }
 
 function normalizeRecords(items) {
@@ -1018,11 +1013,22 @@ function formatRecordValue(value, field) {
 
 async function saveTable(event) {
     event.preventDefault();
+    clearMessage(formMessage);
     const payload = readTableForm();
     const isUpdate = modeInput.value === 'edit';
     const method = isUpdate ? 'PUT' : 'POST';
 
     try {
+        if (currentTable === 'jugadores') {
+            const params = new URLSearchParams({
+                modulo: 'personas',
+                accion: 'validar_edad',
+                fecha_nacimiento: String(payload.fecha_nacimiento || ''),
+                id_categoria: String(payload.id_categoria || ''),
+            });
+            const validation = await requestJson(`${MODULE_URL}?${params}`);
+            if (!validation.valid) throw new Error('La edad del jugador no corresponde a la categoria seleccionada.');
+        }
         const data = await requestJson(tableUrl(currentTable), {
             method,
             headers: { 'Content-Type': 'application/json' },
@@ -1037,7 +1043,8 @@ async function saveTable(event) {
             showMessage(messageBox, data.message || (isUpdate ? 'El registro se actualizó correctamente.' : 'El registro se agregó correctamente.'));
         }
     } catch (error) {
-        showMessage(messageBox, error.message, true);
+        activateRecordTab('form', false);
+        showMessage(formMessage, error.message, true);
     }
 }
 
@@ -1058,6 +1065,7 @@ function fillForm(record) {
     selectedRecord = record;
     modeInput.value = 'edit';
     formTitle.textContent = 'Modificar registro';
+    newRecordTab.textContent = 'Modificar registro';
     resetSelectSearch(recordIdInput);
     recordIdInput.value = formatRecordValue(getRecordValue(record, table.pkFields[0]), table.pkFields[0]);
     ensureSelectSearch(recordIdInput);
@@ -1086,8 +1094,10 @@ function fillForm(record) {
 function clearForm() {
     const table = tables[currentTable];
     selectedRecord = null;
+    clearMessage(formMessage);
     modeInput.value = 'create';
     formTitle.textContent = 'Nuevo registro';
+    newRecordTab.textContent = 'Nuevo registro';
     recordIdInput.value = '';
     recordIdInput.readOnly = false;
     resetSelectSearch(recordIdInput);
@@ -1290,7 +1300,7 @@ function showFormValidationError(event) {
     const fieldName = label?.textContent?.trim() || input.getAttribute('placeholder') || 'este campo';
     const detail = input.validationMessage || 'Complete este campo para continuar.';
 
-    showMessage(messageBox, `Revise ${fieldName}: ${detail}`, true);
+    showMessage(formMessage, `Revise ${fieldName}: ${detail}`, true);
 }
 
 function keepDigitsOnly(event) {

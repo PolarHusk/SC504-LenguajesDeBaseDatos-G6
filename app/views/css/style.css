@@ -404,6 +404,12 @@ textarea {
     margin: 22px 0;
 }
 
+.records-summary {
+    margin: 18px 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
 .stat-card {
     border-radius: 8px;
     padding: 20px;

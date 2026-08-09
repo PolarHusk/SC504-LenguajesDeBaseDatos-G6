@@ -16,6 +16,11 @@ final class PersonasController extends ModuleController
         return 'Personas y jugadores';
     }
 
+    public function isPlayerAgeValid(string $fechaNacimiento, int $categoriaId): bool
+    {
+        return $this->model->isPlayerAgeValid($fechaNacimiento, $categoriaId);
+    }
+
     public function schema(): array
     {
         return [
