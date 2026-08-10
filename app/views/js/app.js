@@ -1020,7 +1020,23 @@ function getRecordValue(record, field, display = false) {
 
 function formatRecordValue(value, field) {
     if (!value || field.type !== 'date') return value ?? '';
-    return String(value).slice(0, 10);
+    return toDateInputValue(value);
+}
+
+function toDateInputValue(value) {
+    // input[type=date] solo acepta YYYY-MM-DD. Oracle puede devolver DD-MON-YY según su NLS_DATE_FORMAT.
+    const text = String(value).trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(text)) return text.slice(0, 10);
+
+    const match = text.match(/^(\d{1,2})-([A-Z]{3})-(\d{2,4})$/i);
+    if (!match) return '';
+
+    const months = { JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06', JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12' };
+    const month = months[match[2].toUpperCase()];
+    if (!month) return '';
+
+    const year = match[3].length === 2 ? `20${match[3]}` : match[3];
+    return `${year}-${month}-${match[1].padStart(2, '0')}`;
 }
 
 async function saveTable(event) {
@@ -1167,12 +1183,17 @@ async function deleteRecord() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
-        showMessage(messageBox, data.message || 'Registro desactivado correctamente.');
-        clearForm();
         tableCache.delete(currentTable);
-        loadRecords(true);
+        const recordsLoaded = await loadRecords(true);
+        clearForm();
+        activateRecordTab('records', false);
+        if (recordsLoaded) {
+            // El mensaje se muestra después de recargar la tabla para que no sea reemplazado por “Registros cargados”.
+            showMessage(messageBox, data.message || 'Registro desactivado correctamente.');
+        }
     } catch (error) {
-        showMessage(messageBox, error.message, true);
+        // Si falla, se mantiene el formulario abierto para que el usuario conserve el contexto del registro.
+        showMessage(formMessage, error.message, true);
     }
 }
 
