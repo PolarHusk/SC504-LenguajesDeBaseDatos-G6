@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/Database.php';
 require_once dirname(__DIR__) . '/config/constants.php';
 
+// Base de acceso a Oracle: ejecuta vistas, procedimientos y funciones parametrizadas del PACKAGE.
 abstract class OracleModel
 {
     protected function connection()

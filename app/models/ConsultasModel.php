@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Convierte filtros HTTP en parámetros y llama las funciones CLOB/JSON de la vista deportiva.
 final class ConsultasModel extends OracleModel
 {
     // Cada método de este modelo identifica explícitamente la función del PACKAGE que atiende la consulta deportiva.

@@ -9,6 +9,7 @@ declare(strict_types=1);
  * los nuevos controladores pueden extender esta clase y usar una API MVC
  * consistente.
  */
+// Clase base para controladores tradicionales; centraliza la carga de vistas y modelos.
 class Controller
 {
     public function model(string $model): object

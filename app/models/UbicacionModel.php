@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 require_once dirname(__DIR__) . '/models/AddressModel.php';
 
+// Gestiona sedes y sus vínculos con provincia, cantón y distrito.
 final class UbicacionModel extends OracleModel
 {
     public function listSedes(): array

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+// Endpoint del CRUD administrativo: resuelve el módulo solicitado y delega en su controlador.
+
 require_once dirname(__DIR__, 2) . '/app/core/Session.php';
 require_once dirname(__DIR__, 2) . '/app/core/Http.php';
 require_once dirname(__DIR__, 2) . '/app/controllers/ConfiguracionController.php';

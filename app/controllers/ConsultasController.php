@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/Http.php';
 require_once dirname(__DIR__) . '/models/ConsultasModel.php';
 
+// API de lectura para la vista deportiva: traduce cada action HTTP a una consulta del modelo.
 final class ConsultasController
 {
     public function __construct(private ConsultasModel $model)

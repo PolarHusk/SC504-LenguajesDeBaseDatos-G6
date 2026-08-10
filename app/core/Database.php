@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Crea y reutiliza una conexión OCI8 persistente con Oracle usando la configuración privada.
 function db_connection()
 {
     static $connection = null;

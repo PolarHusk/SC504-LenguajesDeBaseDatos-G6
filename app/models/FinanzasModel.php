@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Mapea la administración de facturas de inscripción a procedimientos del PACKAGE.
 final class FinanzasModel extends OracleModel
 {
     public function listFacturaciones(): array

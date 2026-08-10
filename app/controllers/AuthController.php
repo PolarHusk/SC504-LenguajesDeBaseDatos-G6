@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/Http.php';
 require_once dirname(__DIR__) . '/models/Contracts/AuthenticatorInterface.php';
 
+// Atiende inicio, cierre y consulta de sesión; conecta el formulario de acceso con AuthModel.
 final class AuthController
 {
     public function __construct(private AuthenticatorInterface $model)

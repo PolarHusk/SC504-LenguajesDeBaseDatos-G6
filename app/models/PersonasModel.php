@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 require_once dirname(__DIR__) . '/models/AddressModel.php';
 
+// Gestiona personas y relaciones: empleados, jugadores, contactos y posiciones deportivas.
 final class PersonasModel extends OracleModel
 {
     public function listEmpleados(): array

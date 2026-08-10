@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/Http.php';
 require_once dirname(__DIR__) . '/config/constants.php';
 
+// Plantilla del CRUD administrativo: valida tabla y método HTTP antes de delegar al módulo concreto.
 abstract class ModuleController
 {
     abstract public function label(): string;

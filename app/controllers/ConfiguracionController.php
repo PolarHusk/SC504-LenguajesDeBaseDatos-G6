@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/ModuleController.php';
 require_once dirname(__DIR__) . '/models/ConfiguracionModel.php';
 
+// CRUD de catálogos de configuración: ubicaciones, categorías, cargos, temporadas y tipos.
 final class ConfiguracionController extends ModuleController
 {
     public function __construct(private ConfiguracionModel $model)

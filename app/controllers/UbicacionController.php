@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/ModuleController.php';
 require_once dirname(__DIR__) . '/models/UbicacionModel.php';
 
+// CRUD de sedes y de su información geográfica.
 final class UbicacionController extends ModuleController
 {
     public function __construct(private UbicacionModel $model)

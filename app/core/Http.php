@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Utilidades HTTP compartidas: CORS, sesión requerida, lectura JSON y respuestas normalizadas.
 function configure_json_api(string $methods): void
 {
     header('Content-Type: application/json; charset=utf-8');

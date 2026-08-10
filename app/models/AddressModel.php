@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Encapsula los procedimientos de creación y modificación de direcciones exactas.
 final class AddressModel extends OracleModel
 {
     public function create(array $address): int

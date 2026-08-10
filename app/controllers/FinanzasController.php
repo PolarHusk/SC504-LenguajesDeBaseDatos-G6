@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/ModuleController.php';
 require_once dirname(__DIR__) . '/models/FinanzasModel.php';
 
+// CRUD de facturación de inscripciones dentro del panel administrativo.
 final class FinanzasController extends ModuleController
 {
     public function __construct(private FinanzasModel $model)

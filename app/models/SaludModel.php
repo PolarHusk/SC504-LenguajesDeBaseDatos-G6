@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Mapea la información clínica a procedimientos de médicos, revisiones, partes y lesiones.
 final class SaludModel extends OracleModel
 {
     public function listMedicos(): array

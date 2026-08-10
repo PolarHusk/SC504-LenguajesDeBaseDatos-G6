@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Busca inscripciones pendientes y registra pagos desde el flujo específico de facturación.
 final class PagosModel extends OracleModel
 {
     public function searchPlayers(string $cedula): array

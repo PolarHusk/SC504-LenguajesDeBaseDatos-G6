@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Mapea categorías y artículos de inventario a los procedimientos Oracle correspondientes.
 final class InventarioModel extends OracleModel
 {
     public function listCategoriasInventario(): array

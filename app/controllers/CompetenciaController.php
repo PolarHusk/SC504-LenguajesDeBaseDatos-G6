@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/ModuleController.php';
 require_once dirname(__DIR__) . '/models/CompetenciaModel.php';
 
+// CRUD del módulo deportivo competitivo: partidos, asistencia, estadísticas y tarjetas.
 final class CompetenciaController extends ModuleController
 {
     public function __construct(private CompetenciaModel $model)

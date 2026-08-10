@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Mapea los catálogos de configuración a sus procedimientos de insertar, modificar y desactivar.
 final class ConfiguracionModel extends OracleModel
 {
     public function listEstados(): array

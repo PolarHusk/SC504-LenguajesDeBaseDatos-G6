@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+// Configuración privada de conexión Oracle, consumida exclusivamente por Database.php.
+
 return [
     'user' => 'PROYECTOFINALACADEMIALEIVA',
     'password' => 'Fidelitas$2026',

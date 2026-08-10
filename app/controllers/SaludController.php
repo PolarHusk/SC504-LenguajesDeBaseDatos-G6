@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/ModuleController.php';
 require_once dirname(__DIR__) . '/models/SaludModel.php';
 
+// CRUD de médicos, partes médicos, revisiones físicas y lesiones.
 final class SaludController extends ModuleController
 {
     public function __construct(private SaludModel $model)

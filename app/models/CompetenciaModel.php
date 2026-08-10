@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/core/OracleModel.php';
 
+// Mapea las operaciones competitivas a procedimientos Oracle de partidos y estadísticas.
 final class CompetenciaModel extends OracleModel
 {
     public function listPartidos(): array

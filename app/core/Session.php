@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Inicializa la sesión PHP en una carpeta temporal propia del proyecto.
 function start_app_session(): void
 {
     if (session_status() === PHP_SESSION_ACTIVE) {

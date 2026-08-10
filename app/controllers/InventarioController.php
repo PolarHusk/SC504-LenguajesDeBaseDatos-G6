@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/ModuleController.php';
 require_once dirname(__DIR__) . '/models/InventarioModel.php';
 
+// CRUD de categorías y artículos que componen el inventario de la academia.
 final class InventarioController extends ModuleController
 {
     public function __construct(private InventarioModel $model)

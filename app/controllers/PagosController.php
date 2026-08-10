@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/core/Http.php';
 require_once dirname(__DIR__) . '/models/PagosModel.php';
 
+// API específica de pagos: busca por cédula, consulta pendientes y registra el pago seleccionado.
 final class PagosController
 {
     public function __construct(private PagosModel $model)

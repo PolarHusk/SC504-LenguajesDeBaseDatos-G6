@@ -8,6 +8,7 @@ declare(strict_types=1);
  * Acepta URLs como ?url=auth/login y mantiene como ruta predeterminada el
  * flujo de autenticación que ya utiliza el proyecto.
  */
+// Enrutador base: interpreta la URL y selecciona el controlador y la acción solicitados.
 class App
 {
     protected string $controller = 'AuthController';
