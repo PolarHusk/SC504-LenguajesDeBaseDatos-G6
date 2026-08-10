@@ -13,6 +13,7 @@ final class ConsultasController
 
     public function handle(): void
     {
+        // Este controlador recibe `action` desde fetch del frontend y lo redirige al método del modelo.
         handle_options_request();
         require_authenticated_session('Debe iniciar sesion para consultar la informacion deportiva.');
 
@@ -23,6 +24,7 @@ final class ConsultasController
         try {
             $action = $_GET['action'] ?? '';
             if ($action === 'catalogos') {
+                // action=catalogos -> tres funciones de catálogo del PACKAGE.
                 send_json([
                     'seasons' => $this->model->listSeasons(),
                     'categories' => $this->model->listCategories(),
@@ -31,14 +33,17 @@ final class ConsultasController
             }
 
             if ($action === 'matches') {
+                // action=matches -> ConsultasModel::searchMatches() -> FIDE_CONSULTAS_PARTIDOS_BUSCAR_FN.
                 send_json(['records' => $this->model->searchMatches($_GET)]);
             }
 
             if ($action === 'players') {
+                // action=players -> ConsultasModel::searchPlayers() -> FIDE_CONSULTAS_JUGADORES_BUSCAR_FN.
                 send_json(['records' => $this->model->searchPlayers($_GET)]);
             }
 
             if ($action === 'player') {
+                // action=player -> resumen acumulado de un jugador.
                 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
                 if (!$id) {
                     send_json(['error' => 'Debe indicar un jugador valido.'], 400);
@@ -47,11 +52,8 @@ final class ConsultasController
                 send_json(['record' => $this->model->playerSummary($id)]);
             }
 
-            if ($action === 'dashboard') {
-                send_json(['record' => $this->model->dashboard($_GET)]);
-            }
-
             if ($action === 'compare') {
+                // action=compare -> función de comparación de hasta tres jugadores.
                 $ids = array_values(array_unique(array_filter(
                     array_map('intval', explode(',', (string) ($_GET['ids'] ?? ''))),
                     static fn(int $id): bool => $id > 0
@@ -64,6 +66,7 @@ final class ConsultasController
             }
 
             if ($action === 'match') {
+                // action=match -> detalle del partido más estadísticas de sus jugadores.
                 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
                 if (!$id) {
                     send_json(['error' => 'Debe indicar un partido valido.'], 400);
@@ -73,6 +76,7 @@ final class ConsultasController
             }
 
             if ($action === 'player_match') {
+                // action=player_match -> estadísticas de un jugador dentro de un partido.
                 $playerId = filter_input(INPUT_GET, 'player_id', FILTER_VALIDATE_INT);
                 $matchId = filter_input(INPUT_GET, 'match_id', FILTER_VALIDATE_INT);
                 if (!$playerId || !$matchId) {
@@ -83,10 +87,12 @@ final class ConsultasController
             }
 
             if ($action === 'availability') {
+                // action=availability -> disponibilidad calculada según lesiones vigentes.
                 send_json(['records' => $this->model->availability($_GET)]);
             }
 
             if ($action === 'player_injuries') {
+                // action=player_injuries -> historial de lesiones del jugador.
                 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
                 if (!$id) {
                     send_json(['error' => 'Debe indicar un jugador valido.'], 400);
@@ -96,6 +102,7 @@ final class ConsultasController
             }
 
             if ($action === 'player_matches') {
+                // action=player_matches -> historial deportivo del jugador.
                 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
                 if (!$id) {
                     send_json(['error' => 'Debe indicar un jugador valido.'], 400);

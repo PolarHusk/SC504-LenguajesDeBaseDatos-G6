@@ -1,8 +1,10 @@
+// Perfil individual: el id se obtiene de la URL para que cada tarjeta enlace a su jugador.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 document.addEventListener('DOMContentLoaded', loadPlayerProfile);
 
 async function loadPlayerProfile() {
+    // Validación temprana: sin id no se hace una consulta inválida al backend.
     const playerId = new URLSearchParams(window.location.search).get('id');
     const message = document.getElementById('profileMessage');
 
@@ -22,6 +24,7 @@ async function loadPlayerProfile() {
 }
 
 function renderProfile(record) {
+    // El perfil separa datos personales de métricas; las métricas se reciben ya agregadas por Oracle.
     const fullName = `${record.NOMBRE || ''} ${record.APELLIDO_PATERNO || ''} ${record.APELLIDO_MATERNO || ''}`.trim();
     document.title = `Academia Leiva | ${fullName}`;
     document.getElementById('profileName').textContent = fullName;

@@ -1,8 +1,10 @@
+// Detalle de partido: reúne encabezado del partido y estadísticas individuales en una misma vista.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 document.addEventListener('DOMContentLoaded', loadMatch);
 
 async function loadMatch() {
+    // Se lee el identificador de query string, evitando mantener estado global entre pantallas.
     try {
         const id = new URLSearchParams(window.location.search).get('id');
         if (!id) throw new Error('No se indico un partido valido.');
@@ -12,6 +14,7 @@ async function loadMatch() {
 }
 
 function renderMatch(match, players) {
+    // Los datos se renderizan solo después de recibir ambas consultas requeridas por el detalle.
     document.getElementById('matchHero').innerHTML = `<span class="eyebrow">${escapeHtml(match.NOMBRE_CATEGORIA || 'Partido')}</span><h2>Academia Leiva <span aria-hidden="true">vs.</span> ${escapeHtml(match.RIVAL || 'Rival')}</h2><div class="match-score">${escapeHtml(match.GOLES_FAVOR ?? 0)} <span>-</span> ${escapeHtml(match.GOLES_CONTRA ?? 0)}</div><p class="match-meta">${escapeHtml(formatDate(match.FECHA))} | ${escapeHtml(`${match.TIPO_TEMPORADA || ''} ${match.TEMPORADA_ANIO || ''}`)} | ${escapeHtml(match.RESULTADO || '')}</p>`;
     const stats = [['Tiros', match.TIROS], ['Tiros a porteria', match.TIROS_PORTERIA], ['Pases exitosos', match.PASES_EXITOSOS], ['Pases fallidos', match.PASES_FALLIDOS], ['Posesion', match.POSESION_BALON], ['Asistencias', match.TOTAL_ASISTENCIA]];
     document.getElementById('teamStatsGrid').innerHTML = stats.map(([label, value]) => `<article class="analysis-stat"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value ?? 0)}</strong></article>`).join('');

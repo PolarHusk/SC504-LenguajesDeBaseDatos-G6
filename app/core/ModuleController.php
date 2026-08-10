@@ -19,6 +19,8 @@ abstract class ModuleController
 
     public function handle(): void
     {
+        // Puente del CRUD administrativo: POST/PUT/DELETE terminan en los métodos de cada modelo,
+        // que a su vez invocan los procedimientos almacenados mediante OracleModel::call().
         handle_options_request();
         require_authenticated_session('Debe iniciar sesion para usar el panel administrativo.');
 

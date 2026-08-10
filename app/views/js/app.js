@@ -1,3 +1,5 @@
+// Cliente de administración: concentra autenticación, CRUD dinámico y facturación.
+// La configuración de cada módulo llega desde PHP en `window.APP_MODULES`.
 const AUTH_URL = '../../public/routes/auth.php';
 const MODULE_URL = '../../public/routes/admin.php';
 const PAYMENT_URL = '../../public/routes/pagos.php';
@@ -62,6 +64,7 @@ const paymentDetail = document.getElementById('paymentDetail');
 let selectedPaymentPlayer = null;
 
 function init() {
+    // Punto de arranque: registra eventos de interfaz y comprueba si ya existe sesión.
     bindTabs();
     loginForm.addEventListener('submit', login);
     paymentSearchForm.addEventListener('submit', searchPaymentPlayers);
@@ -86,6 +89,7 @@ function init() {
 }
 
 async function searchPaymentPlayers(event) {
+    // La búsqueda de pagos usa únicamente cédula, para identificar al jugador de forma unívoca.
     event.preventDefault();
     const cedulaInput = document.getElementById('paymentCedula');
     const cedula = cedulaInput.value.replace(/\D/g, '');
@@ -149,6 +153,7 @@ function preparePaymentForm(pendingPayments) {
 }
 
 async function registerPayment(event) {
+    // El registro se delega al procedimiento del paquete; el frontend solo envía datos validados.
     event.preventDefault();
     if (!selectedPaymentPlayer) return;
     const period = document.getElementById('paymentMonth').options[document.getElementById('paymentMonth').selectedIndex];
@@ -184,6 +189,7 @@ function formatCurrency(amount) { return new Intl.NumberFormat('es-CR', { style:
 function formatDate(value) { if (!value) return '—'; const [year, month, day] = String(value).slice(0, 10).split('-'); return year && month && day ? `${day}/${month}/${year}` : String(value); }
 
 function bindTabs() {
+    // Las pestañas cambian el panel visible sin navegar ni perder el estado de la pantalla.
     document.querySelectorAll('[data-bs-toggle="pill"]').forEach((tab) => {
         tab.addEventListener('click', () => {
             const target = document.querySelector(tab.dataset.bsTarget);
@@ -199,6 +205,7 @@ function bindTabs() {
 }
 
 async function checkSession() {
+    // La sesión se consulta al servidor; no se confía en datos de sesión guardados en el navegador.
     try {
         const data = await requestJson(`${AUTH_URL}?action=status`);
         if (data.authenticated) showAdmin(data.user);
@@ -292,6 +299,7 @@ function showAccess() {
 }
 
 function buildMenu() {
+    // El menú se genera desde la definición de módulos, evitando duplicar opciones en HTML.
     tableMenu.innerHTML = '';
     Object.entries(moduleGroups).forEach(([moduleKey, module]) => {
         const availableTables = module.tables.filter((key) => tables[key]);
@@ -353,6 +361,7 @@ function bindRecordTabKeyboard() {
 }
 
 function activateRecordTab(tabName, moveFocus = false) {
+    // Al editar, el texto de la pestaña también cambia para que coincida con el título del formulario.
     const showForm = tabName === 'form';
 
     recordsTab.classList.toggle('active', !showForm);
@@ -535,6 +544,7 @@ function renderFieldControl(field) {
 }
 
 async function loadDynamicSelectOptions(table) {
+    // Carga catálogos de llaves foráneas para que el usuario seleccione valores existentes.
     const selectFields = [...(table.pkFields || []), ...(table.fields || [])]
         .filter((field) => ['select', 'multiselect', 'checkboxes'].includes(field.type) && (field.optionsTable || Array.isArray(field.options)));
 
@@ -884,6 +894,7 @@ function resetLocationSelect(key, placeholder) {
 }
 
 async function loadRecords(forceRefresh = false) {
+    // Cache local por tabla: reduce solicitudes repetidas sin alterar la fuente de datos del servidor.
     if (!forceRefresh && tableCache.has(currentTable)) {
         records = tableCache.get(currentTable);
         applyRecordFilters();
@@ -908,6 +919,7 @@ async function loadRecords(forceRefresh = false) {
 }
 
 function applyRecordFilters() {
+    // El filtro de administración actúa sobre los registros ya cargados para respuesta inmediata.
     const table = tables[currentTable];
     if (!table) return;
 
@@ -1012,6 +1024,7 @@ function formatRecordValue(value, field) {
 }
 
 async function saveTable(event) {
+    // El mismo formulario resuelve crear o modificar mediante el modo y el id del registro seleccionado.
     event.preventDefault();
     clearMessage(formMessage);
     const payload = readTableForm();
@@ -1061,6 +1074,7 @@ function handleTableClick(event) {
 }
 
 function fillForm(record) {
+    // Precarga el registro y cambia la UI a modo edición; no guarda cambios hasta enviar el formulario.
     const table = tables[currentTable];
     selectedRecord = record;
     modeInput.value = 'edit';
@@ -1362,6 +1376,7 @@ function readInputValue(input, field) {
 }
 
 async function requestJson(url, options = {}) {
+    // Adaptador común de fetch: normaliza errores HTTP y respuestas JSON para todo el frontend.
     let response;
     try {
         response = await fetch(url, options);

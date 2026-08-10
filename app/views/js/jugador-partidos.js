@@ -1,8 +1,10 @@
+// Historial de partidos de un jugador seleccionado desde su perfil deportivo.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 document.addEventListener('DOMContentLoaded', loadPlayerMatches);
 
 async function loadPlayerMatches() {
+    // La respuesta se transforma directamente en filas: el filtrado y agregación ocurren en Oracle.
     try {
         const id = new URLSearchParams(window.location.search).get('id');
         if (!id) throw new Error('No se indico un jugador valido.');

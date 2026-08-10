@@ -1,8 +1,10 @@
+// Disponibilidad deportiva: considera lesiones vigentes y su fecha de recuperación.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 document.addEventListener('DOMContentLoaded', initAvailability);
 
 async function initAvailability() {
+    // Primero se llena el catálogo de categorías y luego se permite filtrar disponibilidad.
     document.getElementById('availabilityFilters').addEventListener('submit', (event) => {
         event.preventDefault();
         loadAvailability();
@@ -26,6 +28,7 @@ async function loadCatalogs() {
 }
 
 async function loadAvailability() {
+    // Cada cambio de categoría solicita un cálculo actualizado al backend.
     clearMessage();
     const params = new URLSearchParams({ action: 'availability' });
     new FormData(document.getElementById('availabilityFilters')).forEach((value, key) => {
@@ -36,6 +39,7 @@ async function loadAvailability() {
 }
 
 function renderAvailability(records) {
+    // La interfaz presenta el estado calculado por la función Oracle, no lo infiere en JavaScript.
     const available = records.filter((record) => Number(record.ID_ESTADO) === 1 && Number(record.LESIONES) === 0).length;
     const injured = records.filter((record) => Number(record.LESIONES) > 0).length;
     document.getElementById('availableCount').textContent = String(available);

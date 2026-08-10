@@ -9,4 +9,5 @@ require_once dirname(__DIR__, 2) . '/app/controllers/ConsultasController.php';
 start_app_session();
 configure_json_api('GET, OPTIONS');
 
+// Puerta de entrada HTTP: conecta el fetch del navegador con el controlador de consultas.
 (new ConsultasController(new ConsultasModel()))->handle();

@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . '/core/OracleModel.php';
 
 final class ConsultasModel extends OracleModel
 {
+    // Cada método de este modelo identifica explícitamente la función del PACKAGE que atiende la consulta deportiva.
     public function listSeasons(): array
     {
         return $this->decodeJsonResult(
@@ -39,6 +40,7 @@ final class ConsultasModel extends OracleModel
         $result = trim((string) ($filters['result'] ?? ''));
 
         return $this->decodeJsonResult(
+            // Llamada a FIDE_CONSULTAS_PARTIDOS_BUSCAR_FN con los filtros normalizados.
             $this->callClobFunction(
                 'FIDE_CONSULTAS_PARTIDOS_BUSCAR_FN',
                 [
@@ -62,6 +64,7 @@ final class ConsultasModel extends OracleModel
         $cedula = trim((string) ($filters['cedula'] ?? ''));
 
         return $this->decodeJsonResult(
+            // Llamada a FIDE_CONSULTAS_JUGADORES_BUSCAR_FN; los valores vacíos se convierten en NULL.
             $this->callClobFunction(
                 'FIDE_CONSULTAS_JUGADORES_BUSCAR_FN',
                 [
@@ -79,6 +82,7 @@ final class ConsultasModel extends OracleModel
     public function playerSummary(int $playerId): array
     {
         $records = $this->decodeJsonResult(
+            // Llamada a FIDE_CONSULTAS_JUGADOR_RESUMEN_FN para las estadísticas acumuladas.
             $this->callClobFunction(
                 'FIDE_CONSULTAS_JUGADOR_RESUMEN_FN',
                 [$playerId],
@@ -92,22 +96,6 @@ final class ConsultasModel extends OracleModel
         }
 
         return $records[0];
-    }
-
-    public function dashboard(array $filters): array
-    {
-        $season = trim((string) ($filters['season'] ?? ''));
-        $category = trim((string) ($filters['category'] ?? ''));
-        $records = $this->callConsultationFunction(
-            'FIDE_CONSULTAS_DASHBOARD_FN',
-            [
-                $season === '' ? null : (int) $season,
-                $category === '' ? null : (int) $category,
-            ],
-            'No fue posible cargar el dashboard.'
-        );
-
-        return $records[0] ?? [];
     }
 
     public function comparePlayers(array $playerIds): array
@@ -189,6 +177,7 @@ final class ConsultasModel extends OracleModel
 
     private function callConsultationFunction(string $function, array $arguments, string $message): array
     {
+        // Adaptador común: aquí se conecta este modelo con callClobFunction() de OracleModel.
         return $this->decodeJsonResult(
             $this->callClobFunction($function, $arguments, $message),
             'Oracle no devolvio la consulta en un formato valido.'

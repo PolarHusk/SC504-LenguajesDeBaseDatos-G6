@@ -1,8 +1,10 @@
+// Estadística de un jugador en un partido específico; requiere ambos identificadores de URL.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 document.addEventListener('DOMContentLoaded', loadPlayerMatch);
 
 async function loadPlayerMatch() {
+    // Se valida que la relación jugador-partido venga completa antes de consultar.
     try {
         const params = new URLSearchParams(window.location.search);
         const playerId = params.get('player_id');

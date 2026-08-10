@@ -1,3 +1,4 @@
+// Comparador: limita la selección a tres jugadores antes de solicitar la comparación al backend.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 const selectedPlayers = new Set();
 
@@ -31,6 +32,7 @@ async function loadCatalogs() {
 }
 
 async function loadCandidates() {
+    // La categoría reduce candidatos y mejora la legibilidad de la selección.
     clearMessage();
     const params = new URLSearchParams({ action: 'players' });
     new FormData(document.getElementById('compareSearch')).forEach((value, key) => {
@@ -54,6 +56,7 @@ function renderCandidates(records) {
 }
 
 function togglePlayer(event) {
+    // Set evita duplicados y conserva únicamente los ids necesarios para la consulta.
     const checkbox = event.target;
     if (!checkbox.matches('[data-player-id]')) return;
     const id = checkbox.dataset.playerId;
@@ -67,6 +70,7 @@ function togglePlayer(event) {
 }
 
 async function compareSelected() {
+    // La comparación reutiliza estadísticas agregadas en Oracle para mantener una única fuente de verdad.
     if (selectedPlayers.size < 2) return;
     clearMessage();
     const params = new URLSearchParams({ action: 'compare', ids: [...selectedPlayers].join(',') });

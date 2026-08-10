@@ -53,6 +53,8 @@ abstract class OracleModel
 
     protected function call(string $procedure, array $arguments, string $message, array $dateIndexes = []): void
     {
+        // Punto único de llamada a procedimientos del PACKAGE Oracle.
+        // Los modelos envían el nombre del SP y este método construye: BEGIN PAQUETE.PROCEDIMIENTO(...); END;.
         $connection = $this->connection();
         $placeholders = [];
 
@@ -82,6 +84,7 @@ abstract class OracleModel
 
     protected function callNumberFunction(string $function, array $arguments, string $message, array $dateIndexes = []): int
     {
+        // Punto único para funciones Oracle que devuelven NUMBER (por ejemplo, la validación de edad).
         $connection = $this->connection();
         $placeholders = [];
         foreach ($arguments as $index => $value) {
@@ -144,6 +147,7 @@ abstract class OracleModel
 
     protected function callClobFunction(string $function, array $arguments, string $message): string
     {
+        // Punto único para funciones de consulta: Oracle devuelve JSON en CLOB y PHP lo entrega al controlador.
         $connection = $this->connection();
         $placeholders = [];
         foreach ($arguments as $index => $value) {

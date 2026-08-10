@@ -1,8 +1,10 @@
+// Historial clínico del jugador: muestra lesiones, médico y fecha estimada de recuperación.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 document.addEventListener('DOMContentLoaded', loadInjuries);
 
 async function loadInjuries() {
+    // El id del jugador mantiene la navegación contextual desde la ficha deportiva.
     try {
         const id = new URLSearchParams(window.location.search).get('id');
         if (!id) throw new Error('No se indico un jugador valido.');

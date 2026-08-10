@@ -1,3 +1,5 @@
+// Vista principal de consulta deportiva: el frontend consume un único endpoint
+// y el servidor decide qué función del paquete Oracle ejecutar mediante `action`.
 const CONSULTATION_URL = '../../public/routes/consultas.php';
 
 const tabs = document.querySelectorAll('[data-consultation-tab]');
@@ -15,6 +17,7 @@ let matchSearchTimer = null;
 document.addEventListener('DOMContentLoaded', initConsultation);
 
 async function initConsultation() {
+    // Se intercepta submit para evitar recargar la página; los filtros se aplican por AJAX.
     bindTabs();
     matchFilters.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -69,6 +72,7 @@ function bindTabs() {
 }
 
 async function loadCatalogs() {
+    // Catálogos reutilizables para selectores; se cargan una vez al iniciar la pantalla.
     const data = await requestJson(`${CONSULTATION_URL}?action=catalogos`);
     const seasons = data.seasons || [];
     const categories = data.categories || [];
@@ -88,11 +92,13 @@ async function loadMatches() {
 }
 
 function scheduleMatchSearch() {
+    // Debounce: espera 350 ms para no solicitar datos en cada pulsación del usuario.
     window.clearTimeout(matchSearchTimer);
     matchSearchTimer = window.setTimeout(() => loadMatches(), 350);
 }
 
 async function loadPlayers() {
+    // No se consulta sin filtros para evitar mostrar toda la población de jugadores por defecto.
     clearMessage(playerMessage);
     const hasFilters = [...new FormData(playerFilters).values()].some((value) => String(value).trim() !== '');
     if (!hasFilters) {
@@ -121,6 +127,7 @@ function clearPlayerSearch() {
 }
 
 function formParams(form, action) {
+    // Solo se envían campos con valor; así los parámetros nulos funcionan como filtros opcionales.
     const params = new URLSearchParams({ action });
     new FormData(form).forEach((value, key) => {
         if (String(value).trim() !== '') params.set(key, String(value).trim());
@@ -129,6 +136,7 @@ function formParams(form, action) {
 }
 
 function renderMatches(records) {
+    // Las tarjetas resumen se calculan sobre los mismos resultados filtrados que se muestran en la tabla.
     const wins = records.filter((record) => Number(record.GOLES_FAVOR) > Number(record.GOLES_CONTRA)).length;
     const losses = records.filter((record) => Number(record.GOLES_FAVOR) < Number(record.GOLES_CONTRA)).length;
     document.getElementById('matchTotal').textContent = String(records.length);
@@ -150,6 +158,7 @@ function renderMatches(records) {
 }
 
 function renderPlayers(records) {
+    // Se escapa todo dato recibido antes de insertarlo en HTML para prevenir XSS.
     document.getElementById('playerResultCount').textContent = `${records.length} registros`;
     playersGrid.innerHTML = records.length ? records.map((record) => {
         const fullName = `${record.NOMBRE || ''} ${record.APELLIDO_PATERNO || ''} ${record.APELLIDO_MATERNO || ''}`.trim();
@@ -200,6 +209,7 @@ function clearMessage(element) {
 }
 
 async function requestJson(url) {
+    // Centraliza la comunicación y convierte respuestas de error del backend en errores visibles.
     const response = await fetch(url);
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'No fue posible completar la consulta.');
