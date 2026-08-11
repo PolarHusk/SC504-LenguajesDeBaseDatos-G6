@@ -10,10 +10,10 @@ async function loadInjuries() {
         if (!id) throw new Error('No se indico un jugador valido.');
         const data = await requestJson(`${CONSULTATION_URL}?action=player_injuries&id=${encodeURIComponent(id)}`);
         const records = data.records || [];
-        document.getElementById('injuryTitle').textContent = records[0]?.NOMBRE_COMPLETO || 'Historial de lesiones';
+        document.getElementById('injuryTitle').textContent = 'Historial de lesiones';
         document.getElementById('injurySubtitle').textContent = 'Lesiones registradas y estado de recuperacion.';
         document.getElementById('injuryCount').textContent = `${records.length} registros`;
-        document.getElementById('injuryTable').innerHTML = records.length ? records.map((record) => `<tr><td>${escapeHtml(formatDate(record.FECHA))}</td><td>${escapeHtml(record.DESCRIPCION || 'Sin descripcion')}</td><td>${escapeHtml(record.OBSERVACIONES || 'Sin observaciones')}</td><td>${escapeHtml(formatDate(record.FECHA_RECUPERACION) || 'Pendiente')}</td><td><span class="status-pill ${record.ESTADO === 'ACTIVA' ? 'status-lesionado' : 'status-disponible'}">${escapeHtml(record.ESTADO)}</span></td></tr>`).join('') : '<tr><td colspan="5" class="empty-result">No se encontraron lesiones.</td></tr>';
+        document.getElementById('injuryTable').innerHTML = records.length ? records.map((record) => `<tr><td>${escapeHtml(formatDate(record.FECHA_PARTE_MEDICO))}</td><td>${escapeHtml(record.NOMBRE_TIPO_LESION || 'Sin tipo')}</td><td>${escapeHtml(record.DESCRIPCION || 'Sin descripcion')}<br><small>${escapeHtml(record.MEDICO || 'Medico no indicado')}</small></td><td>${escapeHtml(formatDate(record.FECHA_RECUPERACION) || 'Pendiente')}</td><td><span class="status-pill status-lesionado">Activa</span></td></tr>`).join('') : '<tr><td colspan="5" class="empty-result">No se encontraron lesiones.</td></tr>';
         document.getElementById('injuryContent').classList.remove('hidden');
     } catch (error) { showMessage(error.message); }
 }

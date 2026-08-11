@@ -44,7 +44,7 @@ abstract class ModuleController
                 $isUpdate = $method === 'PUT';
                 $data = read_json_body();
                 if (!$isUpdate && ($this->schema()[$table]['hasEstado'] ?? false)) {
-                    $data['id_estado'] = ESTADO_ACTIVO;
+                    $data['id_estado'] = $this->schema()[$table]['createState'] ?? ESTADO_ACTIVO;
                 }
                 $this->saveTable($table, $data, $isUpdate);
                 send_json([

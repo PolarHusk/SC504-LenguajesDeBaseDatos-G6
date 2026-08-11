@@ -70,7 +70,7 @@ final class SaludController extends ModuleController
                     ['key' => 'id_partemedico', 'column' => 'ID_PARTEMEDICO', 'label' => 'ID Parte medico', 'type' => 'number'],
                 ],
                 'displayFields' => [['key' => 'tipo_lesion', 'column' => 'TIPO_LESION', 'label' => 'Tipo de lesion', 'type' => 'text']],
-                'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false,
+                'hasEstado' => true, 'statusColumn' => true, 'autoId' => true, 'hasAddress' => false, 'createState' => 6,
             ],
         ];
     }
